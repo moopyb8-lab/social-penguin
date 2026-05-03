@@ -7,7 +7,7 @@ let wavesRunning=true;function animateWaves(){if(wavesRunning){ctx.clearRect(0,0
 requestAnimationFrame(animateWaves);}
 animateWaves();document.addEventListener('visibilitychange',()=>{wavesRunning=!document.hidden;});const reveals=document.querySelectorAll('.reveal');const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target);}});},{threshold:0.12});reveals.forEach(r=>io.observe(r));let isAnnual=false;const prices={starter:['0','0'],pro:['9.99','6.99'],growth:['20','13.99'],};function toggleBilling(){isAnnual=!isAnnual;const toggle=document.getElementById('billingToggle');toggle.classList.toggle('annual',isAnnual);document.getElementById('label-monthly').classList.toggle('active',!isAnnual);document.getElementById('label-annual').classList.toggle('active',isAnnual);Object.keys(prices).forEach(p=>{const idx=isAnnual?1:0;const el=document.getElementById('price-'+p);const noteEl=document.getElementById('note-'+p);el.style.opacity='0';setTimeout(()=>{el.textContent=prices[p][idx];el.style.opacity='1';if(isAnnual&&parseFloat(prices[p][1])>0){const annual=(parseFloat(prices[p][1])*12).toFixed(0);const saved=((parseFloat(prices[p][0])-parseFloat(prices[p][1]))*12).toFixed(0);noteEl.textContent='Billed $'+annual+'/yr, save $'+saved;}else{noteEl.textContent='\u00a0';}},150);});}
 function toggleFaq(btn){const answer=btn.nextElementSibling;const isOpen=btn.classList.contains('open');document.querySelectorAll('.faq-q.open').forEach(b=>{b.classList.remove('open');b.nextElementSibling.classList.remove('open');});if(!isOpen){btn.classList.add('open');answer.classList.add('open');}}
-const ALL_PAGES=['home','pricing','login','signup','forgot','products','privacy','terms','contact','settings','dashboard','tool-post-optimizer','tool-virality-calculator','tool-cringe-calculator','tool-engagement-graph'];function showPage(name){ALL_PAGES.forEach(p=>{const el=document.getElementById('page-'+p);if(el){el.style.display=p===name?'block':'none';el.style.minHeight='';}});const tabHome=document.getElementById('tab-home');const tabPricing=document.getElementById('tab-pricing');const tabProducts=document.getElementById('tab-products');if(tabHome)tabHome.classList.toggle('active',name==='home');if(tabPricing)tabPricing.classList.toggle('active',name==='pricing');if(tabProducts)tabProducts.classList.toggle('active',name==='products');const vcNav=document.getElementById('vcTestNav');if(vcNav)vcNav.style.display=name==='tool-virality-calculator'?'flex':'none';if(name==='dashboard')loadDashboard();window.scrollTo(0,0);const revealEls=document.querySelectorAll('#page-'+name+' .reveal, #page-'+name+' .packs-section, #page-'+name+' .compare-section, #page-'+name+' .faq-section, #page-'+name+' .cta-section');const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});},{threshold:0.08});revealEls.forEach(el=>{el.classList.remove('visible');obs.observe(el);});}
+const ALL_PAGES=['home','pricing','login','signup','forgot','products','privacy','terms','contact','settings','dashboard','tool-post-optimizer','tool-virality-calculator','tool-cringe-calculator','tool-engagement-graph','tool-clip-studio'];function showPage(name){ALL_PAGES.forEach(p=>{const el=document.getElementById('page-'+p);if(el){el.style.display=p===name?'block':'none';el.style.minHeight='';}});const tabHome=document.getElementById('tab-home');const tabPricing=document.getElementById('tab-pricing');const tabProducts=document.getElementById('tab-products');if(tabHome)tabHome.classList.toggle('active',name==='home');if(tabPricing)tabPricing.classList.toggle('active',name==='pricing');if(tabProducts)tabProducts.classList.toggle('active',name==='products');const vcNav=document.getElementById('vcTestNav');if(vcNav)vcNav.style.display=name==='tool-virality-calculator'?'flex':'none';if(name==='dashboard')loadDashboard();window.scrollTo(0,0);const revealEls=document.querySelectorAll('#page-'+name+' .reveal, #page-'+name+' .packs-section, #page-'+name+' .compare-section, #page-'+name+' .faq-section, #page-'+name+' .cta-section');const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});},{threshold:0.08});revealEls.forEach(el=>{el.classList.remove('visible');obs.observe(el);});}
 async function submitContact(){const name=document.getElementById('contactName').value.trim();const email=document.getElementById('contactEmail').value.trim();const msg=document.getElementById('contactMessage').value.trim();if(!name||!email||!msg){alert('Please fill in your name, email, and message.');return;}
 const btn=event.target;btn.textContent='Sending…';btn.disabled=true;await new Promise(r=>setTimeout(r,1400));document.getElementById('contactFormWrap').style.display='none';document.getElementById('contactSuccess').classList.add('show');btn.textContent='Send Message →';btn.disabled=false;}
 async function handleForgot(){document.getElementById('forgotError').classList.remove('show');document.getElementById('forgotSuccess').classList.remove('show');const email=document.getElementById('forgotEmail').value.trim();if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){const el=document.getElementById('forgotError');el.textContent='Please enter a valid email address.';el.classList.add('show');return;}
@@ -476,3 +476,333 @@ set('ccGradeText',d.grade);set('ccTierText',d.tier);set('ccVerdictText',d.verdic
 const intelRows=document.getElementById('ccIntelRows');if(intelRows){const rows=[['Detected Patterns',d.detectedPatterns||'—'],['Platform Fit',d.platformFit||'—'],['Audience Mismatch',d.audienceMismatch||'—'],['Authentic Element',d.authenticityNote||'—']];intelRows.innerHTML=rows.map(([k,v])=>`<div class="cc-intel-row"><div class="cc-intel-key">${ccEsc(k)}</div><div class="cc-intel-val">${ccEsc(v)}</div></div>`).join('');}
 const bdGrid=document.getElementById('ccBdGrid');if(bdGrid&&d.breakdown){const bdLabels={forced_relatability:'Forced Relatability',buzzword_density:'Buzzword Density',performative_humility:'Performative Humility',cta_desperation:'CTA Desperation',trend_chasing:'Trend Chasing',caption_bloat:'Caption Bloat'};bdGrid.innerHTML=Object.entries(d.breakdown).map(([k,v])=>{const bdColor=ccScoreColor(v.score||0);return`<div class="cc-bd-item"><div class="cc-bd-item-header"><div class="cc-bd-item-name">${ccEsc(bdLabels[k]||k)}</div><div class="cc-bd-item-score"style="color:${bdColor};-webkit-text-fill-color:${bdColor};">${v.score}</div></div><div class="cc-bd-item-bar"><div class="cc-bd-item-fill"style="width:0%;background:${bdColor}"data-w="${v.score}%"></div></div><div class="cc-bd-item-note">${ccEsc(v.note||'')}</div></div>`;}).join('');setTimeout(()=>{bdGrid.querySelectorAll('.cc-bd-item-fill').forEach(el=>{el.style.width=el.dataset.w;});},300);}}
 function ccToggleBd(){const body=document.getElementById('ccBdBody');const chev=document.getElementById('ccBdChevron');if(body)body.classList.toggle('open');if(chev)chev.classList.toggle('open');}
+// ── Clip Studio ──────────────────────────────────────────────────────────────
+(function(){
+
+// ── CAPTION GLOBALS ──
+var capStyle = { font:'Impact', fontCss:'Impact,sans-serif', color:'#ffffff', colorLabel:'White', outline:'black', size:28, pos:'top-center' };
+
+function toggleFontDrop(){
+  var btn=document.getElementById('fontBtn');
+  var drop=document.getElementById('fontDrop');
+  btn.classList.toggle('open');
+  drop.classList.toggle('open');
+  if(drop.classList.contains('open')){
+    setTimeout(function(){document.addEventListener('click',closeFontDrop,{once:true});},0);
+  }
+}
+function closeFontDrop(e){
+  var wrap=document.querySelector('.font-select-wrap');
+  if(wrap&&!wrap.contains(e.target)){
+    document.getElementById('fontBtn').classList.remove('open');
+    document.getElementById('fontDrop').classList.remove('open');
+  }
+}
+function selFont(el){
+  document.querySelectorAll('.font-item').forEach(function(e){e.classList.remove('sel');});
+  el.classList.add('sel');
+  capStyle.font=el.dataset.font;
+  capStyle.fontCss=el.dataset.css;
+  var lbl=document.getElementById('fontBtnLabel');
+  lbl.textContent='Aa — '+capStyle.font;
+  lbl.style.fontFamily=capStyle.fontCss;
+  document.getElementById('fontBtn').classList.remove('open');
+  document.getElementById('fontDrop').classList.remove('open');
+  updatePreview();
+}
+function selColor(el){
+  document.querySelectorAll('.color-swatch').forEach(function(e){e.classList.remove('sel');});
+  el.classList.add('sel');
+  capStyle.color=el.dataset.color;
+  capStyle.colorLabel=el.dataset.label;
+  updatePreview();
+}
+function selOutline(el){
+  document.querySelectorAll('.outline-opt').forEach(function(e){e.classList.remove('sel');});
+  el.classList.add('sel');
+  capStyle.outline=el.dataset.outline;
+  updatePreview();
+}
+function updateSize(v){
+  capStyle.size=parseInt(v);
+  document.getElementById('fontSizeVal').textContent=v;
+  updatePreview();
+}
+function selPos(el){
+  document.querySelectorAll('.pos-opt').forEach(function(e){e.classList.remove('sel');});
+  el.classList.add('sel');
+  capStyle.pos=el.dataset.pos;
+  updatePreview();
+}
+function updatePreview(){
+  var pt=document.getElementById('capPreviewText');
+  var em=document.getElementById('capEmphasis');
+  if(!pt) return;
+  pt.style.fontFamily=capStyle.fontCss;
+  pt.style.fontSize=capStyle.size+'px';
+  var gradMap={'grad-wyw':'linear-gradient(90deg,#fff 0%,#ffff00 50%,#fff 100%)','grad-fire':'linear-gradient(90deg,#ff0000,#ff9900,#ffff00)','grad-pp':'linear-gradient(90deg,#a855f7,#ec4899)','grad-pyp':'linear-gradient(90deg,#ff69b4 0%,#ffff00 50%,#ff69b4 100%)','grad-wbw':'linear-gradient(90deg,#fff 0%,#60a5fa 50%,#fff 100%)','grad-rgb':'linear-gradient(90deg,red,orange,yellow,green,blue,violet)'};
+  var emphMap={'emph-wy':['#fff','#ffff00'],'emph-wo':['#fff','#ff9900'],'emph-wp':['#fff','#ff69b4']};
+  if(emphMap[capStyle.color]){
+    var cols=emphMap[capStyle.color];
+    pt.style.background='';pt.style.webkitBackgroundClip='';pt.style.webkitTextFillColor='';pt.style.color=cols[0];
+    if(em){em.style.color=cols[1];em.style.display='inline';}
+    pt.style.textShadow=getCapShadow();
+  } else if(gradMap[capStyle.color]){
+    pt.style.background=gradMap[capStyle.color];pt.style.webkitBackgroundClip='text';pt.style.webkitTextFillColor='transparent';pt.style.backgroundClip='text';
+    if(em){em.style.display='none';}
+    pt.style.textShadow='';
+  } else {
+    pt.style.background='';pt.style.webkitBackgroundClip='';pt.style.webkitTextFillColor=capStyle.color;pt.style.color=capStyle.color;
+    if(em){em.style.display='none';}
+    pt.style.textShadow=getCapShadow();
+  }
+}
+function getCapShadow(){
+  if(capStyle.outline==='black') return '-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,2px 2px 0 #000';
+  if(capStyle.outline==='white') return '-2px -2px 0 #fff,2px -2px 0 #fff,-2px 2px 0 #fff,2px 2px 0 #fff';
+  if(capStyle.outline==='shadow') return '3px 3px 8px rgba(0,0,0,.9),0 0 20px rgba(0,0,0,.7)';
+  return '';
+}
+
+
+(function(){
+
+
+let vidFile = null, vidUrl = null, ffmpegReady = false, ff = null;
+
+const CLIPS = [
+  {r:1,ts:'1:24',te:'3:11',s:84,e:191,dur:'1:47',sc:94,tier:'pn',tl:'Post Immediately',reason:'Opens on a direct challenge, hits an emotional story beat at 2:10, closes with a punchy quotable line. No prior context needed.',hook:'"Most people think this is impossible — but I did it in 30 days."',cap:'30 days. Zero experience. This is what happened 👇\n\n#fyp #motivation #realresults #starttoday',pt:['TikTok','Reels','Shorts']},
+  {r:2,ts:'0:08',te:'1:02',s:8,e:62,dur:'0:54',sc:88,tier:'st',tl:'Strong',reason:'Opens on a bold statement. Fast pacing throughout. Works perfectly as a hook-first Reel.',hook:'"Nobody told me this when I started."',cap:"Nobody told me this when I started. Saving this 📌\n\n#reels #tips #viral",pt:['TikTok','Reels','Shorts']},
+  {r:3,ts:'5:33',te:'6:58',s:333,e:418,dur:'1:25',sc:81,tier:'st',tl:'Strong',reason:'High replay value — specific stat at 6:22 drives screenshot and share behavior.',hook:'"This single number changed everything."',cap:"This one number changed everything 🤯\n\n#viral #mindset",pt:['TikTok','Reels']},
+  {r:4,ts:'8:12',te:'9:10',s:492,e:550,dur:'0:58',sc:74,tier:'ne',tl:'Needs Editing',reason:'Good energy but 15 seconds of setup can be trimmed to get to the payoff faster.',hook:'"The truth nobody wants to hear."',cap:"The truth nobody wants to hear 😮\n\n#honest #growth",pt:['TikTok','Shorts']},
+  {r:5,ts:'11:40',te:'12:55',s:700,e:775,dur:'1:15',sc:68,tier:'ne',tl:'Needs Editing',reason:'Strong close but slow middle. Pacing drop at 12:10 loses momentum.',hook:'"Most people give up right before this."',cap:"Most people give up right before this 📍\n\n#motivation",pt:['Reels']},
+  {r:6,ts:'3:45',te:'4:30',s:225,e:270,dur:'0:45',sc:61,tier:'ne',tl:'Needs Editing',reason:'Decent moment but relies on earlier context. Needs a caption card to work standalone.',hook:'"Here\'s what they never show you."',cap:"Here's what they never show you 👀",pt:['TikTok']},
+  {r:7,ts:'14:22',te:'15:08',s:862,e:908,dur:'0:46',sc:42,tier:'sk',tl:'Skip',reason:'Long filler intro, soft close, no quotable moments. Better clips available.',hook:'—',cap:'—',pt:[]}
+];
+
+const RC = ['g','s','b','b','b','b','b'];
+
+function cs_swTab(t){
+  document.getElementById('tFileC').style.display=t==='file'?'block':'none';
+  document.getElementById('tUrlC').style.display=t==='url'?'block':'none';
+  document.getElementById('tFile').classList.toggle('active',t==='file');
+  document.getElementById('tUrl').classList.toggle('active',t==='url');
+}
+
+function cs_handleFile(inp){
+  if(!inp.files[0]) return;
+  vidFile=inp.files[0];
+  document.getElementById('uploadTitle').textContent='✓ '+vidFile.name;
+  document.getElementById('dropZone').style.borderColor='var(--green)';
+}
+
+function show(id){
+  ['pgInput','pgLoad','pgResults'].forEach(p=>document.getElementById(p).style.display=p===id?'block':'none');
+  window.scrollTo(0,0);
+}
+
+async function analyze(){
+  const url=document.getElementById('urlIn').value.trim();
+  const err=document.getElementById('err');
+  err.classList.remove('show');
+  const isFile=document.getElementById('tFile').classList.contains('active');
+  show('pgLoad');
+  const sids=['s2','s3','s4','s5'];
+  [700,1700,2800,3900].forEach((t,i)=>setTimeout(()=>{
+    if(i>0){const p=document.getElementById(sids[i-1]);p.className='lstep done';p.querySelector('.lstat').textContent='Done';}
+    const c=document.getElementById(sids[i]);c.className='lstep active';c.querySelector('.lstat').textContent='Running';
+  },t));
+  await new Promise(r=>setTimeout(r,5100));
+  sids.forEach(id=>{const s=document.getElementById(id);s.className='lstep done';s.querySelector('.lstat').textContent='Done';});
+  await new Promise(r=>setTimeout(r,300));
+  if(isFile&&vidFile){vidUrl=URL.createObjectURL(vidFile);document.getElementById('vid').src=vidUrl;}
+  document.getElementById('vid').load();
+  show('pgResults');
+  renderClips();
+  initPlayer();
+}
+
+function resetTool(){
+  if(vidUrl){URL.revokeObjectURL(vidUrl);vidUrl=null;}
+  vidFile=null;
+  document.getElementById('urlIn').value='';
+  document.getElementById('uploadTitle').textContent='Drop your video here';
+  document.getElementById('dropZone').style.borderColor='';
+  ['s2','s3','s4','s5'].forEach(id=>{const s=document.getElementById(id);s.className='lstep pending';s.querySelector('.lstat').textContent='Queued';});
+  document.getElementById('s2').className='lstep active';document.getElementById('s2').querySelector('.lstat').textContent='Running';
+  show('pgInput');
+}
+
+function renderClips(){
+  document.getElementById('clipList').innerHTML=CLIPS.map((c,i)=>`
+<div class="clip-card${i===0?' active':''}" id="cc${i}">
+  <div class="clip-hd" onclick="cs_previewClip(${i})">
+    <div class="rnk ${RC[i]}">#${c.r}</div>
+    <div class="cm">
+      <div class="cts">${c.ts} — ${c.te}</div>
+      <div class="ci">${c.dur} · ${c.pt.join(', ')||'Not recommended'}</div>
+      <div class="sbar"><div class="sbar-fill" data-w="${c.sc}%" style="width:0"></div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+      <div class="cscore">${c.sc}</div>
+      <div class="tier ${c.tier}">${c.tl}</div>
+    </div>
+  </div>
+  <div class="clip-body">
+    <div class="clip-reason">${c.reason}</div>
+    ${c.hook!=='—'?`<div class="hook-box"><div class="hook-lbl">Hook — First 3 Seconds</div><div class="hook-text">${c.hook}</div></div>`:''}
+    ${c.cap!=='—'?`<div class="cap-box"><div class="cap-lbl">Suggested Caption</div><div class="cap-text">${c.cap.replace(/\n/g,'<br>')}</div></div>`:''}
+    <div class="actions">
+      <button class="abtn prev" onclick="cs_previewClip(${i})">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Preview Clip
+      </button>
+      ${c.tier!=='sk'?`<button class="abtn exp" id="eb${i}" onclick="cs_exportClip(${i},this)">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export MP4
+      </button>`:''}
+      ${c.cap!=='—'?`<button class="abtn cp" id="cb${i}" onclick="cs_copyCap(${i},this)">Copy Caption</button>`:''}
+    </div>
+    <div class="exp-prog" id="ep${i}"><div class="exp-fill" id="ef${i}"></div></div>
+    <div class="exp-stat" id="es${i}"></div>
+  </div>
+</div>`).join('');
+  setTimeout(()=>document.querySelectorAll('[data-w]').forEach(el=>{const w=el.dataset.w;el.style.width='0';requestAnimationFrame(()=>requestAnimationFrame(()=>el.style.width=w));}),200);
+}
+
+// ── PLAYER ──
+function initPlayer(){
+  const v=document.getElementById('vid');
+  v.addEventListener('timeupdate',updateProg);
+  v.addEventListener('ended',()=>{document.getElementById('playIcon').innerHTML='<polygon points="5 3 19 12 5 21 5 3"/>';});
+  if(vidFile) cs_previewClip(0);
+}
+
+function updateProg(){
+  const v=document.getElementById('vid');
+  if(!v.duration) return;
+  document.getElementById('tlProg').style.width=(v.currentTime/v.duration*100)+'%';
+  document.getElementById('tDisp').textContent=fmt(v.currentTime)+' / '+fmt(v.duration);
+}
+
+function togglePlay(){
+  const v=document.getElementById('vid');
+  if(v.paused){v.play();document.getElementById('playIcon').innerHTML='<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';}
+  else{v.pause();document.getElementById('playIcon').innerHTML='<polygon points="5 3 19 12 5 21 5 3"/>';}
+}
+
+function seekTo(e){
+  const v=document.getElementById('vid');if(!v.duration)return;
+  const r=document.getElementById('tline').getBoundingClientRect();
+  v.currentTime=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*v.duration;
+}
+
+let stopFn=null;
+function cs_previewClip(i){
+  const c=CLIPS[i],v=document.getElementById('vid');
+  document.querySelectorAll('.clip-card').forEach(el=>el.classList.remove('active'));
+  document.getElementById('cc'+i).classList.add('active');
+  document.getElementById('clipLbl').textContent='Clip #'+c.r;
+  document.getElementById('clipLbl').style.display='flex';
+  if(v.src){
+    v.currentTime=c.s;v.play().catch(()=>{});
+    document.getElementById('playIcon').innerHTML='<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+    if(v.duration){
+      const r=document.getElementById('tlRegion');
+      r.style.left=(c.s/v.duration*100)+'%';r.style.width=((c.e-c.s)/v.duration*100)+'%';r.style.display='block';
+    }
+    if(stopFn) v.removeEventListener('timeupdate',stopFn);
+    stopFn=()=>{if(v.currentTime>=c.e){v.pause();v.removeEventListener('timeupdate',stopFn);document.getElementById('playIcon').innerHTML='<polygon points="5 3 19 12 5 21 5 3"/>';}};
+    v.addEventListener('timeupdate',stopFn);
+  }
+}
+
+// ── EXPORT ──
+async function cs_exportClip(i,btn){
+  const c=CLIPS[i];
+  const prog=document.getElementById('ep'+i),fill=document.getElementById('ef'+i),stat=document.getElementById('es'+i);
+  btn.disabled=true;
+  btn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin .7s linear infinite"><path d="M21 12a9 9 0 1 1-18 0"/></svg> Processing...';
+  prog.classList.add('on');stat.classList.add('on');fill.style.width='5%';stat.textContent='Starting...';
+
+  if(!vidFile){
+    stat.textContent='Upload a file to enable in-browser export.';stat.style.color='var(--yellow)';
+    btn.disabled=false;btn.innerHTML='Export MP4';prog.classList.remove('on');stat.classList.remove('on');return;
+  }
+
+  try{
+    if(typeof FFmpeg==='undefined') throw new Error('ffmpeg not ready');
+    const {createFFmpeg,fetchFile}=FFmpeg;
+    if(!ff){
+      stat.textContent='Initializing video engine...';fill.style.width='10%';
+      ff=createFFmpeg({log:false,progress:({ratio})=>{fill.style.width=Math.round(15+ratio*70)+'%';}});
+      await ff.load();
+    }
+    stat.textContent='Reading video file...';fill.style.width='18%';
+    const fdata=await fetchFile(vidFile);
+    ff.FS('writeFile','in.mp4',fdata);
+    stat.textContent='Cutting '+c.ts+' to '+c.te+'...';
+    await ff.run('-ss',String(c.s),'-i','in.mp4','-t',String(c.e-c.s),'-c:v','libx264','-c:a','aac','-movflags','+faststart','-y','out.mp4');
+    fill.style.width='93%';stat.textContent='Preparing download...';
+    const data=ff.FS('readFile','out.mp4');
+    const url=URL.createObjectURL(new Blob([data.buffer],{type:'video/mp4'}));
+    const a=document.createElement('a');a.href=url;a.download=`clip-${c.r}-${c.ts.replace(':','-')}_to_${c.te.replace(':','-')}.mp4`;a.click();
+    URL.revokeObjectURL(url);
+    try{ff.FS('unlink','in.mp4');ff.FS('unlink','out.mp4');}catch(e){}
+    fill.style.width='100%';stat.textContent='✓ Download started!';stat.style.color='var(--green)';
+    btn.innerHTML='✓ Exported!';btn.style.background='var(--green)';
+    setTimeout(()=>{prog.classList.remove('on');stat.classList.remove('on');},4000);
+  }catch(err){
+    // Fallback: download with time range hack
+    stat.textContent='Fast export (trim manually from '+c.ts+'–'+c.te+')...';fill.style.width='80%';
+    try{
+      const url=URL.createObjectURL(vidFile);
+      const a=document.createElement('a');a.href=url;a.download=`clip-${c.r}-fullvideo.mp4`;a.click();
+      setTimeout(()=>URL.revokeObjectURL(url),5000);
+      fill.style.width='100%';
+      stat.textContent='Downloaded full video. Trim from '+c.ts+' to '+c.te+' in your editor.';
+      stat.style.color='var(--yellow)';
+      btn.innerHTML='⚠ Downloaded (trim needed)';
+    }catch(e2){stat.textContent='Export failed. Please try a different browser.';stat.style.color='var(--red)';btn.disabled=false;btn.innerHTML='Retry Export';}
+  }
+}
+
+function cs_copyCap(i,btn){
+  navigator.clipboard.writeText(CLIPS[i].cap).catch(()=>{});
+  btn.textContent='✓ Copied';btn.classList.add('done');
+  setTimeout(()=>{btn.textContent='Copy Caption';btn.classList.remove('done');},2000);
+}
+
+function fmt(s){return Math.floor(s/60)+':'+(Math.floor(s%60)+'').padStart(2,'0');}
+
+// Expose caption fns
+window.cs_toggleFontDrop=cs_toggleFontDrop;window.cs_selFont=cs_selFont;window.cs_selColor=cs_selColor;window.cs_selOutline=cs_selOutline;window.cs_updateSize=cs_updateSize;window.cs_selPos=cs_selPos;window.cs_updatePreview=cs_updatePreview;
+// Expose
+window.cs_swTab=cs_swTab;window.cs_handleFile=cs_handleFile;window.analyze=analyze;window.resetTool=resetTool;
+window.cs_previewClip=cs_previewClip;window.togglePlay=togglePlay;window.seekTo=seekTo;
+window.cs_exportClip=cs_exportClip;window.cs_copyCap=cs_copyCap;
+
+// Load FFmpeg in background
+setTimeout(()=>{
+  const sc=document.createElement('script');
+  sc.src='https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js';
+  sc.onload=()=>{
+    const st=document.getElementById('ffStatus');
+    st.classList.remove('ld');
+    st.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg> Video processing ready — exports will be exact MP4 cuts';
+    ffmpegReady=true;
+    setTimeout(()=>st.classList.remove('on'),4000);
+  };
+  sc.onerror=()=>{
+    const st=document.getElementById('ffStatus');
+    st.innerHTML='⚠ Processing engine unavailable — export will download full video for manual trimming';
+    st.style.color='var(--yellow)';
+    st.style.borderColor='rgba(245,158,11,.2)';
+    st.style.background='rgba(245,158,11,.06)';
+  };
+  document.head.appendChild(sc);
+},800);
+
+})();
+
+})();
