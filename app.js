@@ -272,29 +272,85 @@ function selectMusic(platform, index) {
   selections[platform].music = music[index] || null;
 }
 
+const _previewPlatformNames = { tiktok:'TikTok', instagram:'Instagram', youtube:'YouTube', twitter:'X/Twitter', linkedin:'LinkedIn' };
+const _previewPlatformBtn   = { tiktok:'btn-tiktok', instagram:'btn-insta', youtube:'btn-youtube', twitter:'btn-twitter', linkedin:'btn-linkedin' };
+
 function goToPreview() {
   const platform = activePlatform || selectedPlatforms[0];
+
+  // Build platform tabs (only shown when multiple platforms selected)
+  const tabsEl = document.getElementById('previewPlatformTabs');
+  if (tabsEl) {
+    if (selectedPlatforms.length > 1) {
+      tabsEl.innerHTML = selectedPlatforms.map(p =>
+        `<button class="preview-platform-tab${p === platform ? ' active' : ''}" data-platform="${p}" onclick="previewSwitchPlatform('${p}')">${_previewPlatformNames[p] || p}</button>`
+      ).join('');
+    } else {
+      tabsEl.innerHTML = '';
+    }
+  }
+
+  previewShowPlatform(platform);
+  poStage('preview');
+}
+
+function previewShowPlatform(platform) {
   const sel = selections[platform] || {};
-  const captionEl = document.getElementById('mockCaption');
-  const hashtagsEl = document.getElementById('mockHashtags');
+  const d   = generatedData[platform] || {};
+
+  const captionEl   = document.getElementById('mockCaption');
+  const hashtagsEl  = document.getElementById('mockHashtags');
   if (captionEl) captionEl.textContent = sel.caption || 'No caption selected.';
-  if (hashtagsEl) hashtagsEl.innerHTML = (sel.hashtags || []).map(h =>
-    `<span style="color:var(--purple-bright);margin-right:6px;">${h}</span>`).join('');
+  if (hashtagsEl) hashtagsEl.innerHTML = (d.hashtags || []).map(h =>
+    `<span style="color:var(--purple-bright);margin-right:6px;">${esc(h)}</span>`).join('');
+
   if (uploadedFile && uploadedFile.type.startsWith('image/')) {
-    const img = document.getElementById('mockImg');
+    const img         = document.getElementById('mockImg');
     const placeholder = document.getElementById('mockPlaceholder');
     if (img) { img.src = URL.createObjectURL(uploadedFile); img.style.display = 'block'; }
     if (placeholder) placeholder.style.display = 'none';
   }
+
+  const bar = document.getElementById('mockMusicBar');
   if (sel.music) {
-    const bar = document.getElementById('mockMusicBar');
-    const title = document.getElementById('musicBarTitle');
+    const title  = document.getElementById('musicBarTitle');
     const artist = document.getElementById('musicBarArtist');
     if (bar) bar.style.display = 'flex';
-    if (title) title.textContent = sel.music.title || '';
+    if (title)  title.textContent  = sel.music.title  || '';
     if (artist) artist.textContent = sel.music.artist || '';
+  } else {
+    if (bar) bar.style.display = 'none';
   }
-  poStage('preview');
+
+  // Copy button for this platform
+  const postPlatformsEl = document.getElementById('postPlatforms');
+  if (postPlatformsEl) {
+    const btnClass = _previewPlatformBtn[platform] || '';
+    const label    = _previewPlatformNames[platform] || platform;
+    postPlatformsEl.innerHTML =
+      `<button class="btn-platform ${btnClass}" onclick="copyForPlatform(this,'${platform}')">
+        Copy full post for ${label}
+      </button>`;
+  }
+}
+
+function previewSwitchPlatform(platform) {
+  document.querySelectorAll('.preview-platform-tab').forEach(btn =>
+    btn.classList.toggle('active', btn.dataset.platform === platform));
+  previewShowPlatform(platform);
+}
+
+function copyForPlatform(btn, platform) {
+  const sel      = selections[platform] || {};
+  const d        = generatedData[platform] || {};
+  const caption  = sel.caption || '';
+  const hashtags = (d.hashtags || []).join(' ');
+  const text     = [caption, hashtags].filter(Boolean).join('\n\n');
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.textContent = orig; }, 1800);
+  });
 }
 
 function copyPreviewCaption(btn) {
