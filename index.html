@@ -1957,8 +1957,38 @@
 </div>
 
 <!-- FOOTER -->
+<footer>
+  <a class="footer-logo" href="#" onclick="showPage('home');return false;" aria-label="Social Penguin Home">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right:9px;flex-shrink:0;">
+      <ellipse cx="14" cy="16" rx="8" ry="10" stroke="url(#fp1)" stroke-width="1.6"/>
+      <ellipse cx="14" cy="13" rx="4.2" ry="5.5" fill="url(#fp2)" opacity="0.9"/>
+      <ellipse cx="14" cy="6" rx="4.5" ry="4.5" stroke="url(#fp1)" stroke-width="1.6"/>
+      <path d="M10 22.5 Q7 24.5 6 26" stroke="url(#fp1)" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M18 22.5 Q21 24.5 22 26" stroke="url(#fp1)" stroke-width="1.4" stroke-linecap="round"/>
+      <defs>
+        <linearGradient id="fp1" x1="6" y1="2" x2="22" y2="26" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#a855f7"/>
+          <stop offset="100%" stop-color="#ec4899"/>
+        </linearGradient>
+        <linearGradient id="fp2" x1="10" y1="8" x2="18" y2="19" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#a855f7" stop-opacity="0.25"/>
+          <stop offset="100%" stop-color="#ec4899" stop-opacity="0.1"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <span style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;background:linear-gradient(90deg,#a855f7,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Social Penguin</span>
+  </a>
 
+  <nav class="footer-links">
+    <a href="#" onclick="showPage('products');return false;">Products</a>
+    <a href="#" onclick="showPage('pricing');return false;">Pricing</a>
+    <a href="#" onclick="showPage('privacy');return false;">Privacy</a>
+    <a href="#" onclick="showPage('terms');return false;">Terms</a>
+    <a href="#" onclick="showPage('contact');return false;">Contact</a>
+  </nav>
 
+  <span class="footer-copy">&copy; 2026 Social Penguin. All rights reserved.</span>
+</footer>
 
 <!-- App JavaScript -->
 <script src="app.js"></script>
