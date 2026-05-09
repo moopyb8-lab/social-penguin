@@ -4306,3 +4306,23 @@ h1{font-family:'Inter',sans-serif;font-weight:900;font-size:clamp(44px,7vw,82px)
   justify-content: center;
   padding: 90px 24px 60px;
 }
+
+/* ── Platform card-label / card-title for VC, CC, EG (matches Post Optimizer) ── */
+#page-tool-virality-calculator .card-label,
+#page-tool-cringe-calculator .card-label,
+#page-tool-engagement-graph .card-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--purple-bright);
+  display: flex; align-items: center; gap: 8px; margin-bottom: 18px;
+}
+#page-tool-virality-calculator .card-label::before,
+#page-tool-cringe-calculator .card-label::before,
+#page-tool-engagement-graph .card-label::before {
+  content: ''; width: 18px; height: 1px; background: var(--purple-bright);
+}
+#page-tool-virality-calculator .card-title,
+#page-tool-cringe-calculator .card-title,
+#page-tool-engagement-graph .card-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 16px;
+}
