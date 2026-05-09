@@ -2855,12 +2855,12 @@
 /* Platform chips */
 #page-tool-virality-calculator .vc-chips { display: flex; flex-wrap: wrap; gap: 10px; }
 #page-tool-virality-calculator .vc-chip {
-  display: flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 100px;
-  background: rgba(139,92,246,0.06); border: 1px solid rgba(139,92,246,0.2);
-  font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.3px;
+  display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 100px;
+  background: var(--card); border: 1px solid var(--border-soft);
+  font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.3px;
   color: var(--muted); cursor: pointer; transition: all 0.18s; user-select: none;
 }
-#page-tool-virality-calculator .vc-chip:hover { border-color: rgba(168,85,247,0.5); color: var(--text); }
+#page-tool-virality-calculator .vc-chip:hover { border-color: var(--border); color: var(--text); }
 #page-tool-virality-calculator .vc-chip.selected {
   background: rgba(168,85,247,0.14); border-color: rgba(168,85,247,0.55); color: var(--text);
 }
@@ -3322,9 +3322,9 @@
   .eg-platform-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
   .eg-platform-chip {
     display: inline-flex; align-items: center; gap: 8px;
-    padding: 9px 18px; border-radius: 100px;
+    padding: 10px 20px; border-radius: 100px;
     background: var(--card); border: 1px solid var(--border-soft);
-    font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700;
+    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
     color: var(--muted); cursor: pointer; transition: all 0.18s; user-select: none;
   }
   .eg-platform-chip:hover { border-color: var(--border); color: var(--text); }
@@ -3807,9 +3807,9 @@
 }
 #page-tool-cringe-calculator .cc-chip {
   display: inline-flex; align-items: center; gap: 8px;
-  padding: 8px 16px; border-radius: 100px;
-  font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600;
-  background: rgba(139,92,246,0.06); border: 1px solid rgba(139,92,246,0.15);
+  padding: 10px 20px; border-radius: 100px;
+  font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+  background: var(--card); border: 1px solid var(--border-soft);
   color: var(--muted); cursor: pointer; transition: all 0.18s; user-select: none;
 }
 #page-tool-cringe-calculator .cc-chip:hover { border-color: var(--border); color: var(--text); }
