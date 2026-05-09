@@ -11,6 +11,7 @@
     --text: #f1f0f7;
     --muted: #9490b0;
     --border: rgba(139,92,246,0.18);
+    --border-soft: rgba(255,255,255,0.08);
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -624,6 +625,7 @@
     --text: #f1f0f7;
     --muted: #9490b0;
     --border: rgba(139,92,246,0.18);
+    --border-soft: rgba(255,255,255,0.08);
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -2865,7 +2867,7 @@
   background: rgba(168,85,247,0.14); border-color: rgba(168,85,247,0.55); color: var(--text);
 }
 #page-tool-virality-calculator .vc-chip { display: inline-flex; align-items: center; gap: 8px; }
-#page-tool-virality-calculator .vc-chip-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(148,144,176,0.35); flex-shrink: 0; transition: background 0.2s; }
+#page-tool-virality-calculator .vc-chip-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: rgba(148,144,176,0.5); flex-shrink: 0; transition: background 0.2s; }
 #page-tool-virality-calculator .vc-chip.selected { color: var(--purple-bright); border-color: rgba(168,85,247,0.5); background: rgba(168,85,247,0.12); }
 #page-tool-virality-calculator .vc-chip.selected .vc-chip-dot { background: var(--purple-bright); animation: dot-pulse 1.6s ease-in-out infinite; }
 
@@ -3331,9 +3333,7 @@
   .eg-platform-chip.selected {
     background: rgba(168,85,247,0.15); border-color: rgba(168,85,247,0.5); color: var(--text);
   }
-  .eg-chip-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(148,144,176,0.35); transition: background .18s; }
-  .eg-platform-chip { display: inline-flex; align-items: center; gap: 8px; }
-  .eg-chip-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(148,144,176,0.35); flex-shrink: 0; transition: background 0.2s; }
+  .eg-chip-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: rgba(148,144,176,0.5); flex-shrink: 0; transition: background .18s; }
   .eg-platform-chip.selected { color: var(--purple-bright); }
   .eg-platform-chip.selected .eg-chip-dot { background: var(--purple-bright); animation: dot-pulse 1.6s ease-in-out infinite; }
 
@@ -3819,7 +3819,7 @@
   box-shadow: 0 0 14px rgba(236,72,153,0.15);
 }
 #page-tool-cringe-calculator .cc-chip { display: inline-flex; align-items: center; gap: 8px; }
-#page-tool-cringe-calculator .cc-chip-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(148,144,176,0.35); flex-shrink: 0; transition: background 0.2s; }
+#page-tool-cringe-calculator .cc-chip-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: rgba(148,144,176,0.5); flex-shrink: 0; transition: background 0.2s; }
 #page-tool-cringe-calculator .cc-chip.selected { color: var(--purple-bright); border-color: rgba(168,85,247,0.5); background: rgba(168,85,247,0.12); }
 #page-tool-cringe-calculator .cc-chip.selected .cc-chip-dot { background: var(--purple-bright); animation: dot-pulse 1.6s ease-in-out infinite; }
 /* Field */
