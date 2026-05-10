@@ -833,6 +833,28 @@ async function startCheckout(plan) {
   }
 }
 
+async function startPackCheckout(pack) {
+  const user = window._spUser;
+  if (!user) { showPage('login'); return; }
+  const btn = event && event.target ? event.target : null;
+  const orig = btn ? btn.textContent : '';
+  if (btn) { btn.textContent = 'Loading…'; btn.disabled = true; }
+  try {
+    const res = await fetch('/api/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pack, uid: user.uid, email: user.email }),
+    });
+    const data = await res.json();
+    if (data.url) { window.location.href = data.url; }
+    else { alert(data.error || 'Could not start checkout. Try again.'); }
+  } catch (e) {
+    alert('Could not start checkout. Please try again.');
+  } finally {
+    if (btn) { btn.textContent = orig; btn.disabled = false; }
+  }
+}
+
 async function openBillingPortal() {
   const user = window._spUser;
   if (!user) return;
