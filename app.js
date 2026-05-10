@@ -97,7 +97,7 @@ else{el.textContent='Pro';el.className='tool-item-badge pro';}});const statPosts
 '</div>').join('');}}
 function updateNavAuth(){const user=getCurrentUser();const lo=document.getElementById('navAuth');const li=document.getElementById('navLoggedIn');if(!lo||!li)return;if(user){lo.style.display='none';li.style.display='flex';const n=document.getElementById('navUserName');if(n)n.textContent=user.firstName||user.email||'Account';}else{lo.style.display='flex';li.style.display='none';}}
 async function googleSignIn(){if(!window._fb){alert('Firebase not loaded yet. Please try again.');return;}
-try{await window._fb.signInWithPopup(window._fb.auth,window._fb.googleProvider);showPage('dashboard');}catch(e){const msg=e.code==='auth/popup-closed-by-user'?'Sign-in cancelled.':e.code==='auth/unauthorized-domain'?'This domain is not authorised in Firebase. Add it under Authentication → Settings → Authorized domains.':e.message;const banner=document.getElementById('errorBannerSignup')||document.getElementById('errorBanner');if(banner){banner.textContent=msg;banner.classList.add('show');}else{alert(msg);}}}
+try{await window._fb.signInWithPopup(window._fb.auth,window._fb.googleProvider);showPage('dashboard');}catch(e){alert('Google sign-in error: '+e.code+'\n'+e.message);}}
 async function handleLogin(){if(!window._fb){showAuthError('errorBanner','Firebase not configured. Add your Firebase config to the script at the top of the file.');return;}
 showAuthError('errorBanner','');const email=document.getElementById('loginEmail').value.trim();const password=document.getElementById('loginPassword').value;if(!email){showAuthError('errorBanner','Please enter your email address.');return;}
 if(!password){showAuthError('errorBanner','Please enter your password.');return;}
