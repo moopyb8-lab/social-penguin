@@ -63,8 +63,8 @@ export default async function handler(req, res) {
       // Pre-fill the customer's email
       customer_email: customerId ? undefined : email,
       customer: customerId || undefined,
-      success_url: 'https://socialpenguin.net/?checkout=success',
-      cancel_url:  'https://socialpenguin.net/?page=pricing',
+      success_url: 'https://socialpenguin.net/dashboard?checkout=success',
+      cancel_url:  'https://socialpenguin.net/pricing',
       // Allow promo codes (optional — remove if you don't want this)
       allow_promotion_codes: true,
       subscription_data: {
