@@ -115,7 +115,7 @@ const btn=document.getElementById('forgotBtn');btn.classList.add('loading');btn.
 finally{btn.classList.remove('loading');btn.disabled=false;}}
 function logOut(){if(window._fb)window._fb.signOut(window._fb.auth);window._spUser=null;updateNavAuth();showPage('home');}
 function loadSettingsFromUser(){const u=getCurrentUser();if(!u)return;const el=id=>document.getElementById(id);if(el('sFirstName'))el('sFirstName').value=u.firstName||'';if(el('sLastName'))el('sLastName').value=u.lastName||'';if(el('sEmail'))el('sEmail').value=u.email||'';if(el('sUsername'))el('sUsername').value=u.username||'';if(el('sBio'))el('sBio').value=u.bio||'';const dn=((u.firstName||'')+' '+(u.lastName||'')).trim();if(el('settingsDisplayName'))el('settingsDisplayName').textContent=dn||'Your Name';if(el('settingsDisplayEmail'))el('settingsDisplayEmail').textContent=u.email||'';const plan=u.plan||'free';const chip=el('settingsPlanChip');if(chip){chip.textContent=plan==='pro'?'Pro':plan==='growth'?'Growth':'Starter';chip.className='plan-chip '+(plan==='free'?'free':'pro');}
-if(el('subPlanName'))el('subPlanName').textContent=plan==='free'?'Starter Free':plan==='pro'?'Pro $9.99/mo':'Growth $20/mo';if(el('subPlanDetail'))el('subPlanDetail').textContent=plan==='free'?'Free plan. 5 uses per tool per month.':'Unlimited access to all Social Penguin tools.';const cb=el('cancelSubBtn');if(cb)cb.style.display=plan!=='free'?'block':'none';if(el('subBillingCycle'))el('subBillingCycle').textContent=plan==='free'?'No active subscription':'Monthly, renews 1st of next month';}
+if(el('subPlanName'))el('subPlanName').textContent=plan==='free'?'Starter Free':plan==='pro'?'Pro $9.99/mo':'Growth $20/mo';if(el('subPlanDetail'))el('subPlanDetail').textContent=plan==='free'?'Free plan. 5 uses per tool per month.':'Unlimited access to all Social Penguin tools.';const cb=el('cancelSubBtn');if(cb)cb.style.display=plan!=='free'?'block':'none';const mb=el('manageBillingBtn');if(mb)mb.style.display=plan!=='free'?'inline-flex':'none';const ub=document.querySelector('.btn-settings-save[onclick*=pricing]');if(ub)ub.style.display=plan==='free'?'':'none';if(el('subBillingCycle'))el('subBillingCycle').textContent=plan==='free'?'No active subscription':'Monthly, renews 1st of next month';}
 async function saveProfile(){if(!window._fb||!window._fb.auth.currentUser){alert('You must be logged in.');return;}
 const u=window._fb.auth.currentUser;const fn=document.getElementById('sFirstName').value.trim();const ln=document.getElementById('sLastName').value.trim();const em=document.getElementById('sEmail').value.trim();try{await window._fb.updateProfile(u,{displayName:fn+' '+ln});if(em!==u.email)await window._fb.updateEmail(u,em);await window._fb.updateDoc(window._fb.doc(window._fb.db,'users',u.uid),{firstName:fn,lastName:ln,email:em,username:document.getElementById('sUsername').value.trim(),bio:document.getElementById('sBio').value.trim()});if(window._spUser)Object.assign(window._spUser,{firstName:fn,lastName:ln,email:em});updateNavAuth();loadSettingsFromUser();const s=document.getElementById('profileSuccess');if(s){s.classList.add('show');setTimeout(()=>s.classList.remove('show'),3000);}}catch(e){alert(e.message);}}
 async function savePassword(){if(!window._fb||!window._fb.auth.currentUser){alert('You must be logged in.');return;}
@@ -807,4 +807,66 @@ setTimeout(()=>{
 
 })();
 
+})();
+
+// ── Stripe Checkout ──────────────────────────────────────────────────────────
+async function startCheckout(plan) {
+  const user = window._spUser;
+  if (!user) { showPage('login'); return; }
+  const btnId = 'checkout-btn-' + plan;
+  const btn = document.getElementById(btnId);
+  const orig = btn ? btn.textContent : '';
+  if (btn) { btn.textContent = 'Loading…'; btn.disabled = true; }
+  try {
+    const res = await fetch('/api/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plan, isAnnual, uid: user.uid, email: user.email }),
+    });
+    const data = await res.json();
+    if (data.url) { window.location.href = data.url; }
+    else { alert(data.error || 'Could not start checkout. Try again.'); }
+  } catch (e) {
+    alert('Could not start checkout. Please try again.');
+  } finally {
+    if (btn) { btn.textContent = orig; btn.disabled = false; }
+  }
+}
+
+async function openBillingPortal() {
+  const user = window._spUser;
+  if (!user) return;
+  const btn = document.getElementById('manageBillingBtn');
+  const orig = btn ? btn.textContent : '';
+  if (btn) { btn.textContent = 'Loading…'; btn.disabled = true; }
+  try {
+    const res = await fetch('/api/customer-portal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid: user.uid }),
+    });
+    const data = await res.json();
+    if (data.url) { window.location.href = data.url; }
+    else { alert(data.error || 'Could not open billing portal.'); }
+  } catch (e) {
+    alert('Something went wrong. Please try again.');
+  } finally {
+    if (btn) { btn.textContent = orig; btn.disabled = false; }
+  }
+}
+
+// Handle post-checkout success redirect
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('checkout') === 'success') {
+    history.replaceState({page:'dashboard'}, '', '/dashboard');
+    showPage('dashboard', true);
+    setTimeout(() => {
+      const toast = document.createElement('div');
+      toast.textContent = '🎉 You\'re all set! Your plan has been activated.';
+      toast.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#8b5cf6,#ec4899);color:#fff;font-family:\'DM Sans\',sans-serif;font-size:14px;font-weight:600;padding:14px 28px;border-radius:100px;z-index:9999;box-shadow:0 8px 32px rgba(168,85,247,0.4);';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 5000);
+    }, 500);
+  }
 })();
