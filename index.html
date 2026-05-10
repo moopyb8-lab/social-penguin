@@ -102,25 +102,36 @@
   // Auth state listener
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      // Load or create user doc in Firestore
-      const ref = doc(db, 'users', user.uid);
-      const snap = await getDoc(ref);
-      let userData;
-      if (snap.exists()) {
-        userData = snap.data();
-      } else {
-        userData = {
-          uid: user.uid,
-          email: user.email,
-          firstName: user.displayName ? user.displayName.split(' ')[0] : '',
-          lastName:  user.displayName ? user.displayName.split(' ').slice(1).join(' ') : '',
-          plan: 'free',
-          createdAt: new Date().toISOString()
-        };
-        await setDoc(ref, userData);
-      }
-      window._spUser = userData;
+      // Set immediately so checkout/tools work even before Firestore loads
+      window._spUser = {
+        uid: user.uid,
+        email: user.email,
+        firstName: user.displayName ? user.displayName.split(' ')[0] : '',
+        lastName:  user.displayName ? user.displayName.split(' ').slice(1).join(' ') : '',
+        plan: 'free',
+      };
       if (typeof updateNavAuth === 'function') updateNavAuth();
+      // Enrich with Firestore data
+      try {
+        const ref = doc(db, 'users', user.uid);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          window._spUser = { uid: user.uid, email: user.email, ...snap.data() };
+        } else {
+          const userData = {
+            uid: user.uid,
+            email: user.email,
+            firstName: user.displayName ? user.displayName.split(' ')[0] : '',
+            lastName:  user.displayName ? user.displayName.split(' ').slice(1).join(' ') : '',
+            plan: 'free',
+            createdAt: new Date().toISOString()
+          };
+          await setDoc(ref, userData);
+          window._spUser = userData;
+        }
+      } catch(e) {
+        console.warn('Firestore load failed:', e.message);
+      }
       if (typeof loadSettingsFromUser === 'function') loadSettingsFromUser();
     } else {
       window._spUser = null;
