@@ -809,50 +809,77 @@ setTimeout(()=>{
 
 })();
 
-// ── Stripe Checkout ──────────────────────────────────────────────────────────
-async function startCheckout(plan) {
+// ── Stripe Embedded Checkout ─────────────────────────────────────────────────
+const STRIPE_PK = 'YOUR_STRIPE_PUBLISHABLE_KEY'; // replace with pk_live_... or pk_test_...
+let _stripeInstance = null;
+let _embeddedCheckout = null;
+
+function getStripe() {
+  if (!_stripeInstance) _stripeInstance = Stripe(STRIPE_PK);
+  return _stripeInstance;
+}
+
+async function _openEmbeddedCheckout(body, btnEl) {
   const user = window._spUser;
   if (!user) { showPage('login'); return; }
-  const btnId = 'checkout-btn-' + plan;
-  const btn = document.getElementById(btnId);
-  const orig = btn ? btn.textContent : '';
-  if (btn) { btn.textContent = 'Loading…'; btn.disabled = true; }
+  const orig = btnEl ? btnEl.textContent : '';
+  if (btnEl) { btnEl.textContent = 'Loading…'; btnEl.disabled = true; }
   try {
     const res = await fetch('/api/create-checkout-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ plan, isAnnual, uid: user.uid, email: user.email }),
+      body: JSON.stringify({ ...body, uid: user.uid, email: user.email }),
     });
     const data = await res.json();
-    if (data.url) { window.location.href = data.url; }
-    else { alert(data.error || 'Could not start checkout. Try again.'); }
+    if (!data.clientSecret) { alert(data.error || 'Could not start checkout. Try again.'); return; }
+    const modal = document.getElementById('checkoutModal');
+    const container = document.getElementById('checkout-container');
+    container.innerHTML = '';
+    modal.style.display = 'flex';
+    if (_embeddedCheckout) { _embeddedCheckout.destroy(); _embeddedCheckout = null; }
+    _embeddedCheckout = await getStripe().initEmbeddedCheckout({
+      clientSecret: data.clientSecret,
+      appearance: {
+        theme: 'night',
+        variables: {
+          colorPrimary: '#8b5cf6',
+          colorBackground: '#110e1c',
+          colorText: '#f1f0f7',
+          colorDanger: '#f87171',
+          fontFamily: 'DM Sans, sans-serif',
+          borderRadius: '10px',
+        },
+      },
+    });
+    _embeddedCheckout.mount('#checkout-container');
   } catch (e) {
     alert('Could not start checkout. Please try again.');
   } finally {
-    if (btn) { btn.textContent = orig; btn.disabled = false; }
+    if (btnEl) { btnEl.textContent = orig; btnEl.disabled = false; }
   }
 }
 
+function closeCheckoutModal() {
+  const modal = document.getElementById('checkoutModal');
+  if (modal) modal.style.display = 'none';
+  if (_embeddedCheckout) { _embeddedCheckout.destroy(); _embeddedCheckout = null; }
+}
+
+// Close on backdrop click
+document.addEventListener('click', e => {
+  const modal = document.getElementById('checkoutModal');
+  if (e.target === modal) closeCheckoutModal();
+});
+
+async function startCheckout(plan) {
+  const btnId = 'checkout-btn-' + plan;
+  const btn = document.getElementById(btnId);
+  await _openEmbeddedCheckout({ plan, isAnnual }, btn);
+}
+
 async function startPackCheckout(pack) {
-  const user = window._spUser;
-  if (!user) { showPage('login'); return; }
-  const btn = event && event.target ? event.target : null;
-  const orig = btn ? btn.textContent : '';
-  if (btn) { btn.textContent = 'Loading…'; btn.disabled = true; }
-  try {
-    const res = await fetch('/api/create-checkout-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pack, uid: user.uid, email: user.email }),
-    });
-    const data = await res.json();
-    if (data.url) { window.location.href = data.url; }
-    else { alert(data.error || 'Could not start checkout. Try again.'); }
-  } catch (e) {
-    alert('Could not start checkout. Please try again.');
-  } finally {
-    if (btn) { btn.textContent = orig; btn.disabled = false; }
-  }
+  const btn = (event && event.currentTarget) || (event && event.target) || null;
+  await _openEmbeddedCheckout({ pack }, btn);
 }
 
 async function openBillingPortal() {
