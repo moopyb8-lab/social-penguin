@@ -72,9 +72,18 @@ export default async function handler(req, res) {
         expand: ['latest_invoice.payment_intent'],
         metadata: { uid, plan },
       });
-      return res.status(200).json({
-        clientSecret: subscription.latest_invoice.payment_intent.client_secret,
-      });
+
+      // If subscription is already active (customer had a saved payment method)
+      if (subscription.status === 'active') {
+        return res.status(200).json({ alreadyActive: true });
+      }
+
+      const paymentIntent = subscription.latest_invoice?.payment_intent;
+      if (!paymentIntent?.client_secret) {
+        return res.status(500).json({ error: 'Payment could not be initialized. Please try again.' });
+      }
+
+      return res.status(200).json({ clientSecret: paymentIntent.client_secret });
     }
 
     return res.status(400).json({ error: 'Missing plan or pack' });
