@@ -853,7 +853,7 @@ async function _openEmbeddedCheckout(body, btnEl) {
     });
     _embeddedCheckout.mount('#checkout-container');
   } catch (e) {
-    alert('Could not start checkout. Please try again.');
+    alert('Checkout error: ' + (e.message || e));
   } finally {
     if (btnEl) { btnEl.textContent = orig; btnEl.disabled = false; }
   }
