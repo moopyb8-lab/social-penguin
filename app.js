@@ -809,17 +809,8 @@ setTimeout(()=>{
 
 })();
 
-// ── Stripe Embedded Checkout ─────────────────────────────────────────────────
-const STRIPE_PK = 'pk_live_51TILkeIPYOU07j8mjLpy1miy7sHZGoiY90akLQhgtUONG7BxVK72JfSEMhv2arOi5IG4orFM9se12QGjXoyRRtc500kUZUPoA6';
-let _stripeInstance = null;
-let _embeddedCheckout = null;
-
-function getStripe() {
-  if (!_stripeInstance) _stripeInstance = Stripe(STRIPE_PK);
-  return _stripeInstance;
-}
-
-async function _openEmbeddedCheckout(body, btnEl) {
+// ── Stripe Checkout (popup) ───────────────────────────────────────────────────
+async function _startCheckout(body, btnEl) {
   const user = window._spUser;
   if (!user) { showPage('login'); return; }
   const orig = btnEl ? btnEl.textContent : '';
@@ -831,55 +822,26 @@ async function _openEmbeddedCheckout(body, btnEl) {
       body: JSON.stringify({ ...body, uid: user.uid, email: user.email }),
     });
     const data = await res.json();
-    if (!data.clientSecret) { alert(data.error || 'Could not start checkout. Try again.'); return; }
-    const modal = document.getElementById('checkoutModal');
-    const container = document.getElementById('checkout-container');
-    container.innerHTML = '';
-    modal.style.display = 'flex';
-    if (_embeddedCheckout) { _embeddedCheckout.destroy(); _embeddedCheckout = null; }
-    _embeddedCheckout = await getStripe().initEmbeddedCheckout({
-      clientSecret: data.clientSecret,
-      appearance: {
-        theme: 'night',
-        variables: {
-          colorPrimary: '#8b5cf6',
-          colorBackground: '#110e1c',
-          colorText: '#f1f0f7',
-          colorDanger: '#f87171',
-          fontFamily: 'DM Sans, sans-serif',
-          borderRadius: '10px',
-        },
-      },
-    });
-    _embeddedCheckout.mount('#checkout-container');
+    if (!data.url) { alert(data.error || 'Could not start checkout. Try again.'); return; }
+    const w = 520, h = 700;
+    const left = Math.max(0, (screen.width - w) / 2);
+    const top = Math.max(0, (screen.height - h) / 2);
+    window.open(data.url, 'stripe_checkout', `width=${w},height=${h},left=${left},top=${top},scrollbars=yes,resizable=yes`);
   } catch (e) {
-    alert('Checkout error: ' + (e.message || e));
+    alert('Could not start checkout. Please try again.');
   } finally {
     if (btnEl) { btnEl.textContent = orig; btnEl.disabled = false; }
   }
 }
 
-function closeCheckoutModal() {
-  const modal = document.getElementById('checkoutModal');
-  if (modal) modal.style.display = 'none';
-  if (_embeddedCheckout) { _embeddedCheckout.destroy(); _embeddedCheckout = null; }
-}
-
-// Close on backdrop click
-document.addEventListener('click', e => {
-  const modal = document.getElementById('checkoutModal');
-  if (e.target === modal) closeCheckoutModal();
-});
-
 async function startCheckout(plan) {
-  const btnId = 'checkout-btn-' + plan;
-  const btn = document.getElementById(btnId);
-  await _openEmbeddedCheckout({ plan, isAnnual }, btn);
+  const btn = document.getElementById('checkout-btn-' + plan);
+  await _startCheckout({ plan, isAnnual }, btn);
 }
 
 async function startPackCheckout(pack) {
   const btn = (event && event.currentTarget) || (event && event.target) || null;
-  await _openEmbeddedCheckout({ pack }, btn);
+  await _startCheckout({ pack }, btn);
 }
 
 async function openBillingPortal() {
