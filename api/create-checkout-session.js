@@ -69,21 +69,27 @@ export default async function handler(req, res) {
         items: [{ price: priceId }],
         payment_behavior: 'default_incomplete',
         payment_settings: { save_default_payment_method: 'on_subscription' },
-        expand: ['latest_invoice.payment_intent'],
         metadata: { uid, plan },
       });
 
-      // If subscription is already active (customer had a saved payment method)
       if (subscription.status === 'active') {
         return res.status(200).json({ alreadyActive: true });
       }
 
-      const paymentIntent = subscription.latest_invoice?.payment_intent;
-      if (!paymentIntent?.client_secret) {
-        return res.status(500).json({ error: 'Payment could not be initialized. Please try again.' });
+      const invoiceId = typeof subscription.latest_invoice === 'string'
+        ? subscription.latest_invoice
+        : subscription.latest_invoice?.id;
+
+      const invoice = await stripe.invoices.retrieve(invoiceId, {
+        expand: ['payment_intent'],
+      });
+
+      const clientSecret = invoice.payment_intent?.client_secret;
+      if (!clientSecret) {
+        return res.status(500).json({ error: 'No payment required or subscription already active.' });
       }
 
-      return res.status(200).json({ clientSecret: paymentIntent.client_secret });
+      return res.status(200).json({ clientSecret });
     }
 
     return res.status(400).json({ error: 'Missing plan or pack' });
