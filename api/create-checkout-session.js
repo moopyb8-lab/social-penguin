@@ -30,7 +30,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Get or create Stripe customer
+    // Get or create customer
     let customerId;
     const existing = await stripe.customers.list({ email, limit: 1 });
     if (existing.data.length > 0) {
@@ -40,12 +40,11 @@ export default async function handler(req, res) {
       customerId = c.id;
     }
 
-    // One-time generation pack
+    // ── One-time pack ─────────────────────────────────────────────────────────
     if (pack) {
       const priceId = PACK_PRICE_IDS[pack];
-      if (!priceId) {
-        return res.status(400).json({ error: `No price configured for pack "${pack}"` });
-      }
+      if (!priceId) return res.status(400).json({ error: `No price for pack "${pack}"` });
+
       const price = await stripe.prices.retrieve(priceId);
       const pi = await stripe.paymentIntents.create({
         amount: price.unit_amount,
@@ -57,36 +56,48 @@ export default async function handler(req, res) {
       return res.status(200).json({ clientSecret: pi.client_secret });
     }
 
-    // Subscription plan
+    // ── Subscription plan ─────────────────────────────────────────────────────
     if (plan) {
       const billingKey = isAnnual ? 'annual' : 'monthly';
       const priceId = PRICE_IDS[plan]?.[billingKey];
-      if (!priceId) {
-        return res.status(400).json({ error: `No price configured for plan "${plan}" (${billingKey})` });
-      }
+      if (!priceId) return res.status(400).json({ error: `No price for plan "${plan}" (${billingKey})` });
+
       const subscription = await stripe.subscriptions.create({
         customer: customerId,
         items: [{ price: priceId }],
         payment_behavior: 'default_incomplete',
         payment_settings: { save_default_payment_method: 'on_subscription' },
+        expand: ['latest_invoice.payment_intent', 'pending_setup_intent'],
         metadata: { uid, plan },
       });
 
-      if (subscription.status === 'active') {
+      if (subscription.status === 'active' || subscription.status === 'trialing') {
         return res.status(200).json({ alreadyActive: true });
       }
 
-      const invoiceId = typeof subscription.latest_invoice === 'string'
-        ? subscription.latest_invoice
-        : subscription.latest_invoice?.id;
+      // Try payment_intent on the invoice (normal case)
+      let clientSecret = subscription.latest_invoice?.payment_intent?.client_secret;
 
-      const invoice = await stripe.invoices.retrieve(invoiceId, {
-        expand: ['payment_intent'],
-      });
-
-      const clientSecret = invoice.payment_intent?.client_secret;
+      // Try pending_setup_intent (trial or $0 invoice case)
       if (!clientSecret) {
-        return res.status(500).json({ error: 'No payment required or subscription already active.' });
+        clientSecret = subscription.pending_setup_intent?.client_secret;
+      }
+
+      // Last resort: retrieve the invoice manually with expansion
+      if (!clientSecret && subscription.latest_invoice) {
+        const invoiceId = typeof subscription.latest_invoice === 'string'
+          ? subscription.latest_invoice
+          : subscription.latest_invoice.id;
+        const invoice = await stripe.invoices.retrieve(invoiceId, {
+          expand: ['payment_intent'],
+        });
+        clientSecret = invoice.payment_intent?.client_secret;
+      }
+
+      if (!clientSecret) {
+        return res.status(500).json({
+          error: `Could not initialize payment (subscription status: ${subscription.status}). Please contact support.`,
+        });
       }
 
       return res.status(200).json({ clientSecret });
