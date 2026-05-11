@@ -809,8 +809,26 @@ setTimeout(()=>{
 
 })();
 
-// ── Stripe Checkout (popup) ───────────────────────────────────────────────────
-async function _startCheckout(body, btnEl) {
+// ── Stripe Payment Element checkout ──────────────────────────────────────────
+const STRIPE_PK = 'pk_live_51TILkeIPYOU07j8mjLpy1miy7sHZGoiY90akLQhgtUONG7BxVK72JfSEMhv2arOi5IG4orFM9se12QGjXoyRRtc500kUZUPoA6';
+const CHECKOUT_LABELS = {
+  pack_20:        { title: '20 Generations',  sub: 'One-time purchase · $4.99'     },
+  pack_50:        { title: '50 Generations',  sub: 'One-time purchase · $9.99'     },
+  pack_100:       { title: '100 Generations', sub: 'One-time purchase · $14.99'    },
+  'pro-monthly':  { title: 'Pro Plan',        sub: 'Monthly subscription · $9.99/mo' },
+  'pro-annual':   { title: 'Pro Plan',        sub: 'Annual subscription · $6.99/mo'  },
+  'growth-monthly':{ title: 'Growth Plan',   sub: 'Monthly subscription · $20/mo'  },
+  'growth-annual':{ title: 'Growth Plan',    sub: 'Annual subscription · $13.99/mo' },
+};
+let _stripe = null;
+let _elements = null;
+
+function _getStripe() {
+  if (!_stripe) _stripe = Stripe(STRIPE_PK);
+  return _stripe;
+}
+
+async function _startCheckout(body, labelKey, btnEl) {
   const user = window._spUser;
   if (!user) { showPage('login'); return; }
   const orig = btnEl ? btnEl.textContent : '';
@@ -822,26 +840,83 @@ async function _startCheckout(body, btnEl) {
       body: JSON.stringify({ ...body, uid: user.uid, email: user.email }),
     });
     const data = await res.json();
-    if (!data.url) { alert(data.error || 'Could not start checkout. Try again.'); return; }
-    const w = 520, h = 700;
-    const left = Math.max(0, (screen.width - w) / 2);
-    const top = Math.max(0, (screen.height - h) / 2);
-    window.open(data.url, 'stripe_checkout', `width=${w},height=${h},left=${left},top=${top},scrollbars=yes,resizable=yes`);
+    if (!data.clientSecret) { alert(data.error || 'Could not start checkout. Try again.'); return; }
+
+    const label = CHECKOUT_LABELS[labelKey] || { title: 'Your order', sub: '' };
+    document.getElementById('checkout-title').textContent = label.title;
+    document.getElementById('checkout-subtitle').textContent = label.sub;
+
+    const appearance = {
+      theme: 'night',
+      variables: {
+        colorPrimary: '#8b5cf6',
+        colorBackground: '#13101f',
+        colorText: '#f1f0f7',
+        colorDanger: '#f87171',
+        fontFamily: 'DM Sans, sans-serif',
+        borderRadius: '10px',
+        colorTextSecondary: 'rgba(241,240,247,0.6)',
+        colorTextPlaceholder: 'rgba(148,144,176,0.45)',
+        colorIconTab: '#8b5cf6',
+      },
+      rules: {
+        '.Input': { border: '1px solid rgba(139,92,246,0.25)', backgroundColor: 'rgba(139,92,246,0.06)' },
+        '.Input:focus': { border: '1px solid rgba(139,92,246,0.65)', boxShadow: '0 0 0 3px rgba(139,92,246,0.12)' },
+        '.Label': { color: 'rgba(241,240,247,0.65)', fontSize: '13px' },
+        '.Tab': { border: '1px solid rgba(139,92,246,0.2)', backgroundColor: 'rgba(139,92,246,0.05)' },
+        '.Tab--selected': { border: '1px solid rgba(139,92,246,0.6)', backgroundColor: 'rgba(139,92,246,0.12)' },
+      },
+    };
+
+    _elements = _getStripe().elements({ clientSecret: data.clientSecret, appearance });
+    const payEl = _elements.create('payment', { layout: 'tabs' });
+    document.getElementById('payment-element').innerHTML = '';
+    payEl.mount('#payment-element');
+
+    const errEl = document.getElementById('payment-error');
+    errEl.style.display = 'none';
+    document.getElementById('pay-btn').textContent = 'Pay now';
+    document.getElementById('pay-btn').disabled = false;
+    document.getElementById('checkoutModal').style.display = 'flex';
   } catch (e) {
-    alert('Could not start checkout. Please try again.');
+    alert('Could not load checkout. Please try again.');
   } finally {
     if (btnEl) { btnEl.textContent = orig; btnEl.disabled = false; }
   }
 }
 
+async function submitPayment() {
+  const btn = document.getElementById('pay-btn');
+  const errEl = document.getElementById('payment-error');
+  btn.textContent = 'Processing…';
+  btn.disabled = true;
+  errEl.style.display = 'none';
+  const { error } = await _getStripe().confirmPayment({
+    elements: _elements,
+    confirmParams: { return_url: 'https://socialpenguin.net/dashboard?checkout=success' },
+  });
+  if (error) {
+    errEl.textContent = error.message;
+    errEl.style.display = 'block';
+    btn.textContent = 'Pay now';
+    btn.disabled = false;
+  }
+}
+
+function closeCheckout() {
+  document.getElementById('checkoutModal').style.display = 'none';
+  if (_elements) { _elements = null; }
+}
+
 async function startCheckout(plan) {
   const btn = document.getElementById('checkout-btn-' + plan);
-  await _startCheckout({ plan, isAnnual }, btn);
+  const labelKey = plan + (isAnnual ? '-annual' : '-monthly');
+  await _startCheckout({ plan, isAnnual }, labelKey, btn);
 }
 
 async function startPackCheckout(pack) {
   const btn = (event && event.currentTarget) || (event && event.target) || null;
-  await _startCheckout({ pack }, btn);
+  await _startCheckout({ pack }, pack, btn);
 }
 
 async function openBillingPortal() {
