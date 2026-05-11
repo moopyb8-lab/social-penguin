@@ -812,21 +812,44 @@ setTimeout(()=>{
 // ── Stripe Payment Element checkout ──────────────────────────────────────────
 const STRIPE_PK = 'pk_live_51TILkeIPYOU07j8mjLpy1miy7sHZGoiY90akLQhgtUONG7BxVK72JfSEMhv2arOi5IG4orFM9se12QGjXoyRRtc500kUZUPoA6';
 const CHECKOUT_LABELS = {
-  pack_20:        { title: '20 Generations',  sub: 'One-time purchase · $4.99'     },
-  pack_50:        { title: '50 Generations',  sub: 'One-time purchase · $9.99'     },
-  pack_100:       { title: '100 Generations', sub: 'One-time purchase · $14.99'    },
-  'pro-monthly':  { title: 'Pro Plan',        sub: 'Monthly subscription · $9.99/mo' },
-  'pro-annual':   { title: 'Pro Plan',        sub: 'Annual subscription · $6.99/mo'  },
-  'growth-monthly':{ title: 'Growth Plan',   sub: 'Monthly subscription · $20/mo'  },
-  'growth-annual':{ title: 'Growth Plan',    sub: 'Annual subscription · $13.99/mo' },
+  pack_20:         { title: '20 Generations',  sub: 'One-time purchase · $4.99'        },
+  pack_50:         { title: '50 Generations',  sub: 'One-time purchase · $9.99'        },
+  pack_100:        { title: '100 Generations', sub: 'One-time purchase · $14.99'       },
+  'pro-monthly':   { title: 'Pro Plan',        sub: 'Monthly subscription · $9.99/mo'  },
+  'pro-annual':    { title: 'Pro Plan',        sub: 'Annual subscription · $6.99/mo'   },
+  'growth-monthly':{ title: 'Growth Plan',     sub: 'Monthly subscription · $20/mo'   },
+  'growth-annual': { title: 'Growth Plan',     sub: 'Annual subscription · $13.99/mo' },
 };
 let _stripe = null;
 let _elements = null;
+let _checkoutCtx = null; // { type: 'payment'|'setup', plan, billingKey }
 
 function _getStripe() {
   if (!_stripe) _stripe = Stripe(STRIPE_PK);
   return _stripe;
 }
+
+const _stripeAppearance = {
+  theme: 'night',
+  variables: {
+    colorPrimary: '#8b5cf6',
+    colorBackground: '#13101f',
+    colorText: '#f1f0f7',
+    colorDanger: '#f87171',
+    fontFamily: 'DM Sans, sans-serif',
+    borderRadius: '10px',
+    colorTextSecondary: 'rgba(241,240,247,0.6)',
+    colorTextPlaceholder: 'rgba(148,144,176,0.45)',
+    colorIconTab: '#8b5cf6',
+  },
+  rules: {
+    '.Input': { border: '1px solid rgba(139,92,246,0.25)', backgroundColor: 'rgba(139,92,246,0.06)' },
+    '.Input:focus': { border: '1px solid rgba(139,92,246,0.65)', boxShadow: '0 0 0 3px rgba(139,92,246,0.12)' },
+    '.Label': { color: 'rgba(241,240,247,0.65)', fontSize: '13px' },
+    '.Tab': { border: '1px solid rgba(139,92,246,0.2)', backgroundColor: 'rgba(139,92,246,0.05)' },
+    '.Tab--selected': { border: '1px solid rgba(139,92,246,0.6)', backgroundColor: 'rgba(139,92,246,0.12)' },
+  },
+};
 
 async function _startCheckout(body, labelKey, btnEl) {
   const user = window._spUser;
@@ -840,44 +863,21 @@ async function _startCheckout(body, labelKey, btnEl) {
       body: JSON.stringify({ ...body, uid: user.uid, email: user.email }),
     });
     const data = await res.json();
-    if (data.alreadyActive) { window.location.href = '/dashboard?checkout=success'; return; }
-    if (!data.clientSecret) { alert(data.error || 'Could not start checkout. Try again.'); return; }
+    if (!data.clientSecret) { alert(data.error || 'Could not start checkout.'); return; }
+
+    _checkoutCtx = { type: data.type, plan: data.plan, billingKey: data.billingKey };
 
     const label = CHECKOUT_LABELS[labelKey] || { title: 'Your order', sub: '' };
     document.getElementById('checkout-title').textContent = label.title;
     document.getElementById('checkout-subtitle').textContent = label.sub;
+    document.getElementById('payment-error').style.display = 'none';
+    document.getElementById('pay-btn').textContent = _checkoutCtx.type === 'setup' ? 'Subscribe' : 'Pay now';
+    document.getElementById('pay-btn').disabled = false;
 
-    const appearance = {
-      theme: 'night',
-      variables: {
-        colorPrimary: '#8b5cf6',
-        colorBackground: '#13101f',
-        colorText: '#f1f0f7',
-        colorDanger: '#f87171',
-        fontFamily: 'DM Sans, sans-serif',
-        borderRadius: '10px',
-        colorTextSecondary: 'rgba(241,240,247,0.6)',
-        colorTextPlaceholder: 'rgba(148,144,176,0.45)',
-        colorIconTab: '#8b5cf6',
-      },
-      rules: {
-        '.Input': { border: '1px solid rgba(139,92,246,0.25)', backgroundColor: 'rgba(139,92,246,0.06)' },
-        '.Input:focus': { border: '1px solid rgba(139,92,246,0.65)', boxShadow: '0 0 0 3px rgba(139,92,246,0.12)' },
-        '.Label': { color: 'rgba(241,240,247,0.65)', fontSize: '13px' },
-        '.Tab': { border: '1px solid rgba(139,92,246,0.2)', backgroundColor: 'rgba(139,92,246,0.05)' },
-        '.Tab--selected': { border: '1px solid rgba(139,92,246,0.6)', backgroundColor: 'rgba(139,92,246,0.12)' },
-      },
-    };
-
-    _elements = _getStripe().elements({ clientSecret: data.clientSecret, appearance });
+    _elements = _getStripe().elements({ clientSecret: data.clientSecret, appearance: _stripeAppearance });
     const payEl = _elements.create('payment', { layout: 'tabs' });
     document.getElementById('payment-element').innerHTML = '';
     payEl.mount('#payment-element');
-
-    const errEl = document.getElementById('payment-error');
-    errEl.style.display = 'none';
-    document.getElementById('pay-btn').textContent = 'Pay now';
-    document.getElementById('pay-btn').disabled = false;
     document.getElementById('checkoutModal').style.display = 'flex';
   } catch (e) {
     alert('Could not load checkout. Please try again.');
@@ -889,25 +889,68 @@ async function _startCheckout(body, labelKey, btnEl) {
 async function submitPayment() {
   const btn = document.getElementById('pay-btn');
   const errEl = document.getElementById('payment-error');
+  const user = window._spUser;
   btn.textContent = 'Processing…';
   btn.disabled = true;
   errEl.style.display = 'none';
-  const { error } = await _getStripe().confirmPayment({
-    elements: _elements,
-    confirmParams: { return_url: 'https://socialpenguin.net/dashboard?checkout=success' },
-  });
-  if (error) {
-    errEl.textContent = error.message;
-    errEl.style.display = 'block';
-    btn.textContent = 'Pay now';
-    btn.disabled = false;
+
+  if (_checkoutCtx?.type === 'setup') {
+    // Subscription: confirm SetupIntent, then create subscription server-side
+    const { error, setupIntent } = await _getStripe().confirmSetup({
+      elements: _elements,
+      confirmParams: {
+        return_url: `https://socialpenguin.net/dashboard?checkout=success&finalize=1&plan=${_checkoutCtx.plan}&billing=${_checkoutCtx.billingKey}&uid=${user?.uid}`,
+      },
+      redirect: 'if_required',
+    });
+    if (error) {
+      errEl.textContent = error.message;
+      errEl.style.display = 'block';
+      btn.textContent = 'Subscribe';
+      btn.disabled = false;
+    } else if (setupIntent?.status === 'succeeded') {
+      await _finalizeSubscription(setupIntent.id, _checkoutCtx.plan, _checkoutCtx.billingKey, user?.uid);
+      window.location.href = '/dashboard?checkout=success';
+    }
+  } else {
+    // One-time payment
+    const { error } = await _getStripe().confirmPayment({
+      elements: _elements,
+      confirmParams: { return_url: 'https://socialpenguin.net/dashboard?checkout=success' },
+    });
+    if (error) {
+      errEl.textContent = error.message;
+      errEl.style.display = 'block';
+      btn.textContent = 'Pay now';
+      btn.disabled = false;
+    }
   }
+}
+
+async function _finalizeSubscription(setupIntentId, plan, billingKey, uid) {
+  const res = await fetch('/api/finalize-subscription', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ setupIntentId, plan, billingKey, uid }),
+  });
+  return res.json();
 }
 
 function closeCheckout() {
   document.getElementById('checkoutModal').style.display = 'none';
-  if (_elements) { _elements = null; }
+  _elements = null;
+  _checkoutCtx = null;
 }
+
+// Handle post-3DS redirect for subscriptions
+(function() {
+  const p = new URLSearchParams(window.location.search);
+  if (p.get('finalize') === '1' && p.get('setup_intent') && p.get('redirect_status') === 'succeeded') {
+    const uid = p.get('uid') || window._spUser?.uid;
+    _finalizeSubscription(p.get('setup_intent'), p.get('plan'), p.get('billing'), uid)
+      .then(() => { history.replaceState({}, '', '/dashboard?checkout=success'); });
+  }
+})();
 
 async function startCheckout(plan) {
   const btn = document.getElementById('checkout-btn-' + plan);
