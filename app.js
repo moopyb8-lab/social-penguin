@@ -840,6 +840,7 @@ async function _startCheckout(body, labelKey, btnEl) {
       body: JSON.stringify({ ...body, uid: user.uid, email: user.email }),
     });
     const data = await res.json();
+    if (data.alreadyActive) { window.location.href = '/dashboard?checkout=success'; return; }
     if (!data.clientSecret) { alert(data.error || 'Could not start checkout. Try again.'); return; }
 
     const label = CHECKOUT_LABELS[labelKey] || { title: 'Your order', sub: '' };
