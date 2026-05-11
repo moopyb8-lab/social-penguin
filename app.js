@@ -820,9 +820,9 @@ const CHECKOUT_LABELS = {
   'growth-monthly':{ title: 'Growth Plan',     sub: 'Monthly subscription · $20/mo'   },
   'growth-annual': { title: 'Growth Plan',     sub: 'Annual subscription · $13.99/mo' },
 };
-let _stripe = null;
-let _elements = null;
-let _checkoutCtx = null; // { type: 'payment'|'setup', plan, billingKey }
+var _stripe = null;
+var _elements = null;
+var _checkoutCtx = null;
 
 function _getStripe() {
   if (!_stripe) _stripe = Stripe(STRIPE_PK);
