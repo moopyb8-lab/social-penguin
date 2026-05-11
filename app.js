@@ -810,7 +810,7 @@ setTimeout(()=>{
 })();
 
 // ── Stripe Embedded Checkout ─────────────────────────────────────────────────
-const STRIPE_PK = 'YOUR_STRIPE_PUBLISHABLE_KEY'; // replace with pk_live_... or pk_test_...
+const STRIPE_PK = 'pk_live_51TILkeIPYOU07j8mjLpy1miy7sHZGoiY90akLQhgtUONG7BxVK72JfSEMhv2arOi5IG4orFM9se12QGjXoyRRtc500kUZUPoA6';
 let _stripeInstance = null;
 let _embeddedCheckout = null;
 
