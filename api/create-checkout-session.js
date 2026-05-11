@@ -25,58 +25,59 @@ export default async function handler(req, res) {
   }
 
   const { plan, pack, isAnnual, uid, email } = req.body;
-
   if (!uid || !email) {
-    return res.status(400).json({ error: 'Missing required fields: uid, email' });
+    return res.status(400).json({ error: 'Missing uid or email' });
   }
 
   try {
+    // Get or create Stripe customer
     let customerId;
-    const existingCustomers = await stripe.customers.list({ email, limit: 1 });
-    if (existingCustomers.data.length > 0) {
-      customerId = existingCustomers.data[0].id;
+    const existing = await stripe.customers.list({ email, limit: 1 });
+    if (existing.data.length > 0) {
+      customerId = existing.data[0].id;
+    } else {
+      const c = await stripe.customers.create({ email, metadata: { uid } });
+      customerId = c.id;
     }
 
-    const baseParams = {
-      client_reference_id: uid,
-      customer_email: customerId ? undefined : email,
-      customer: customerId || undefined,
-      allow_promotion_codes: true,
-      success_url: 'https://socialpenguin.net/dashboard?checkout=success',
-      cancel_url: 'https://socialpenguin.net/pricing',
-    };
-
-    let session;
-
+    // One-time generation pack
     if (pack) {
       const priceId = PACK_PRICE_IDS[pack];
       if (!priceId) {
         return res.status(400).json({ error: `No price configured for pack "${pack}"` });
       }
-      session = await stripe.checkout.sessions.create({
-        ...baseParams,
-        mode: 'payment',
-        line_items: [{ price: priceId, quantity: 1 }],
+      const price = await stripe.prices.retrieve(priceId);
+      const pi = await stripe.paymentIntents.create({
+        amount: price.unit_amount,
+        currency: price.currency,
+        customer: customerId,
         metadata: { uid, pack },
+        automatic_payment_methods: { enabled: true },
       });
-    } else if (plan) {
+      return res.status(200).json({ clientSecret: pi.client_secret });
+    }
+
+    // Subscription plan
+    if (plan) {
       const billingKey = isAnnual ? 'annual' : 'monthly';
       const priceId = PRICE_IDS[plan]?.[billingKey];
       if (!priceId) {
         return res.status(400).json({ error: `No price configured for plan "${plan}" (${billingKey})` });
       }
-      session = await stripe.checkout.sessions.create({
-        ...baseParams,
-        mode: 'subscription',
-        line_items: [{ price: priceId, quantity: 1 }],
-        metadata: { uid, plan, billingPeriod: billingKey },
-        subscription_data: { metadata: { uid, plan } },
+      const subscription = await stripe.subscriptions.create({
+        customer: customerId,
+        items: [{ price: priceId }],
+        payment_behavior: 'default_incomplete',
+        payment_settings: { save_default_payment_method: 'on_subscription' },
+        expand: ['latest_invoice.payment_intent'],
+        metadata: { uid, plan },
       });
-    } else {
-      return res.status(400).json({ error: 'Missing required field: plan or pack' });
+      return res.status(200).json({
+        clientSecret: subscription.latest_invoice.payment_intent.client_secret,
+      });
     }
 
-    return res.status(200).json({ url: session.url });
+    return res.status(400).json({ error: 'Missing plan or pack' });
 
   } catch (err) {
     console.error('Stripe error:', err);
