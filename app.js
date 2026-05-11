@@ -877,8 +877,8 @@ async function _startCheckout(body, labelKey, btnEl) {
     _elements = _getStripe().elements({ clientSecret: data.clientSecret, appearance: _stripeAppearance });
     const payEl = _elements.create('payment', { layout: 'tabs' });
     document.getElementById('payment-element').innerHTML = '';
-    payEl.mount('#payment-element');
     document.getElementById('checkoutModal').style.display = 'flex';
+    payEl.mount('#payment-element');
   } catch (e) {
     alert('Could not load checkout. Please try again.');
   } finally {
