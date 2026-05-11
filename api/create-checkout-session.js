@@ -38,12 +38,12 @@ export default async function handler(req, res) {
     }
 
     const baseParams = {
-      ui_mode: 'embedded_page',
-      return_url: 'https://socialpenguin.net/dashboard?checkout=success',
       client_reference_id: uid,
       customer_email: customerId ? undefined : email,
       customer: customerId || undefined,
       allow_promotion_codes: true,
+      success_url: 'https://socialpenguin.net/dashboard?checkout=success',
+      cancel_url: 'https://socialpenguin.net/pricing',
     };
 
     let session;
@@ -76,7 +76,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing required field: plan or pack' });
     }
 
-    return res.status(200).json({ clientSecret: session.client_secret });
+    return res.status(200).json({ url: session.url });
 
   } catch (err) {
     console.error('Stripe error:', err);
