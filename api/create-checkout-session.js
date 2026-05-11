@@ -38,7 +38,7 @@ export default async function handler(req, res) {
     }
 
     const baseParams = {
-      ui_mode: 'embedded',
+      ui_mode: 'embedded_page',
       return_url: 'https://socialpenguin.net/dashboard?checkout=success',
       client_reference_id: uid,
       customer_email: customerId ? undefined : email,
