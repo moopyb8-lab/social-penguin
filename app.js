@@ -854,6 +854,7 @@ const _stripeAppearance = {
 async function _startCheckout(body, labelKey, btnEl) {
   const user = window._spUser;
   if (!user) { showPage('login'); return; }
+  if (typeof Stripe === 'undefined') { alert('Payment system failed to load. Please refresh the page and try again.'); return; }
   const orig = btnEl ? btnEl.textContent : '';
   if (btnEl) { btnEl.textContent = 'Loading…'; btnEl.disabled = true; }
   try {
@@ -862,25 +863,35 @@ async function _startCheckout(body, labelKey, btnEl) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...body, uid: user.uid, email: user.email }),
     });
-    const data = await res.json();
-    if (!data.clientSecret) { alert(data.error || 'Could not start checkout.'); return; }
+    let data;
+    try { data = await res.json(); } catch { alert('Server error (non-JSON response). Check Vercel logs.'); return; }
+    if (!data.clientSecret) { alert(data.error || 'No clientSecret returned.'); return; }
 
     _checkoutCtx = { type: data.type, plan: data.plan, billingKey: data.billingKey };
 
     const label = CHECKOUT_LABELS[labelKey] || { title: 'Your order', sub: '' };
-    document.getElementById('checkout-title').textContent = label.title;
-    document.getElementById('checkout-subtitle').textContent = label.sub;
-    document.getElementById('payment-error').style.display = 'none';
-    document.getElementById('pay-btn').textContent = _checkoutCtx.type === 'setup' ? 'Subscribe' : 'Pay now';
-    document.getElementById('pay-btn').disabled = false;
+    const titleEl = document.getElementById('checkout-title');
+    const subEl   = document.getElementById('checkout-subtitle');
+    const errEl   = document.getElementById('payment-error');
+    const payBtn  = document.getElementById('pay-btn');
+    const modal   = document.getElementById('checkoutModal');
+    const peEl    = document.getElementById('payment-element');
+    if (!titleEl || !subEl || !errEl || !payBtn || !modal || !peEl) {
+      alert('Checkout UI missing from page. Please refresh.'); return;
+    }
+    titleEl.textContent = label.title;
+    subEl.textContent   = label.sub;
+    errEl.style.display = 'none';
+    payBtn.textContent  = data.type === 'setup' ? 'Subscribe' : 'Pay now';
+    payBtn.disabled     = false;
+    peEl.innerHTML      = '';
+    modal.style.display = 'flex';
 
     _elements = _getStripe().elements({ clientSecret: data.clientSecret, appearance: _stripeAppearance });
     const payEl = _elements.create('payment', { layout: 'tabs' });
-    document.getElementById('payment-element').innerHTML = '';
-    document.getElementById('checkoutModal').style.display = 'flex';
     payEl.mount('#payment-element');
   } catch (e) {
-    alert('Could not load checkout. Please try again.');
+    alert('Checkout error: ' + (e?.message || String(e)));
   } finally {
     if (btnEl) { btnEl.textContent = orig; btnEl.disabled = false; }
   }
