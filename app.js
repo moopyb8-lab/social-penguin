@@ -811,7 +811,7 @@ setTimeout(()=>{
 
 // ── Stripe Payment Element checkout ──────────────────────────────────────────
 var STRIPE_PK = 'pk_live_51TILkeIPYOU07j8mjLpy1miy7sHZGoiY90akLQhgtUONG7BxVK72JfSEMhv2arOi5IG4orFM9se12QGjXoyRRtc500kUZUPoA6';
-var CHECKOUT_LABELS = {
+window.CHECKOUT_LABELS = {
   pack_20:         { title: '20 Generations',  sub: 'One-time purchase · $4.99',        price: '$4.99'  },
   pack_50:         { title: '50 Generations',  sub: 'One-time purchase · $9.99',        price: '$9.99'  },
   pack_100:        { title: '100 Generations', sub: 'One-time purchase · $14.99',       price: '$14.99' },
@@ -820,6 +820,7 @@ var CHECKOUT_LABELS = {
   'growth-monthly':{ title: 'Growth Plan',     sub: 'Monthly subscription · $20/mo',   price: '$20/mo'    },
   'growth-annual': { title: 'Growth Plan',     sub: 'Annual subscription · $13.99/mo', price: '$13.99/mo' },
 };
+var CHECKOUT_LABELS = window.CHECKOUT_LABELS;
 var _stripe = null;
 var _elements = null;
 var _checkoutCtx = null;
