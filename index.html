@@ -172,7 +172,7 @@
     <a href="#" class="nav-tab" id="tab-pricing" onclick="showPage('pricing');return false;" tabindex="0" onkeydown="if(event.key==='Enter')showPage('pricing')">Pricing</a>
   </div>
   <div style="display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0;padding-left:16px;">
-    <button class="cart-btn" onclick="openCart()">
+    <button class="cart-btn" id="navCartBtn">
       Cart
       <span class="cart-count" id="cartCount">0</span>
     </button>
@@ -701,7 +701,7 @@
     </div>
     <div class="price-annual-note" id="note-pro">&nbsp;</div>
     <p class="plan-desc">The essential Social Penguin toolkit for creators ready to grow their reach.</p>
-    <button class="btn-pack btn-pack-pro" id="checkout-btn-pro" onclick="addToCart('plan','pro')">Add to Cart</button>
+    <button class="btn-pack btn-pack-pro" id="checkout-btn-pro" data-cart-type="plan" data-cart-id="pro">Add to Cart</button>
     <ul class="plan-features">
       <li><span class="check yes-pink"></span> Post Optimizer <span class="feature-limit highlight">Unlimited</span></li>
       <li><span class="check yes-pink"></span> Virality Calculator <span class="feature-limit highlight">Unlimited</span></li>
@@ -722,7 +722,7 @@
     </div>
     <div class="price-annual-note" id="note-growth">&nbsp;</div>
     <p class="plan-desc">More power for serious creators scaling their content output.</p>
-    <button class="btn-pack" id="checkout-btn-growth" onclick="addToCart('plan','growth')">Add to Cart</button>
+    <button class="btn-pack" id="checkout-btn-growth" data-cart-type="plan" data-cart-id="growth">Add to Cart</button>
     <ul class="plan-features">
       <li><span class="check yes"></span> Everything in Pro</li>
       <li><span class="check yes"></span> Clip Studio <span class="feature-limit">50/mo</span></li>
@@ -774,7 +774,7 @@
         <span class="pack-per">one-time</span>
       </div>
       <div class="pack-per-gen">$0.25 per generation</div>
-      <button class="btn-pack" onclick="addToCart('pack','pack_20')">Add to Cart</button>
+      <button class="btn-pack" data-cart-type="pack" data-cart-id="pack_20">Add to Cart</button>
     </div>
 
     <!-- 50 gens best value highlighted -->
@@ -788,7 +788,7 @@
         <span class="pack-per">one-time</span>
       </div>
       <div class="pack-per-gen">$0.20 per generation</div>
-      <button class="btn-pack" style="background:rgba(168,85,247,0.2);border-color:rgba(168,85,247,0.5);" onclick="addToCart('pack','pack_50')">Add to Cart</button>
+      <button class="btn-pack" style="background:rgba(168,85,247,0.2);border-color:rgba(168,85,247,0.5);" data-cart-type="pack" data-cart-id="pack_50">Add to Cart</button>
     </div>
 
     <!-- 100 gens -->
@@ -801,7 +801,7 @@
         <span class="pack-per">one-time</span>
       </div>
       <div class="pack-per-gen">$0.15 per generation</div>
-      <button class="btn-pack" onclick="addToCart('pack','pack_100')">Add to Cart</button>
+      <button class="btn-pack" data-cart-type="pack" data-cart-id="pack_100">Add to Cart</button>
     </div>
 
   </div>
@@ -2756,7 +2756,7 @@
 </div>
 
 <!-- App JavaScript -->
-<script src="app.js"></script>
+<script src="app.js?v=4"></script>
 
 </body>
 </html>

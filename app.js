@@ -881,12 +881,24 @@ function closeCart() {
   if (modal) modal.style.display = 'none';
 }
 
-// Expose cart functions globally in case of IIFE scope issues
 window.addToCart = addToCart;
 window.openCart = openCart;
 window.closeCart = closeCart;
 window.removeFromCart = removeFromCart;
 window.cartCheckout = cartCheckout;
+
+// Wire cart buttons via event listeners (more reliable than inline onclick)
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('[data-cart-type]');
+  if (btn) {
+    e.preventDefault();
+    addToCart(btn.dataset.cartType, btn.dataset.cartId);
+    return;
+  }
+  if (e.target.closest('#navCartBtn')) {
+    openCart();
+  }
+});
 
 async function cartCheckout() {
   if (_cart.length === 0) return;
