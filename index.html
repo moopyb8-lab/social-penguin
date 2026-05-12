@@ -172,7 +172,7 @@
     <a href="#" class="nav-tab" id="tab-pricing" onclick="showPage('pricing');return false;" tabindex="0" onkeydown="if(event.key==='Enter')showPage('pricing')">Pricing</a>
   </div>
   <div style="display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0;padding-left:16px;">
-    <button class="cart-btn" id="navCartBtn">
+    <button class="cart-btn" id="navCartBtn" onclick="spOpenCart()">
       Cart
       <span class="cart-count" id="cartCount">0</span>
     </button>
@@ -701,7 +701,7 @@
     </div>
     <div class="price-annual-note" id="note-pro">&nbsp;</div>
     <p class="plan-desc">The essential Social Penguin toolkit for creators ready to grow their reach.</p>
-    <button class="btn-pack btn-pack-pro" id="checkout-btn-pro" data-cart-type="plan" data-cart-id="pro">Add to Cart</button>
+    <button class="btn-pack btn-pack-pro" id="checkout-btn-pro" onclick="spAddToCart('plan','pro')">Add to Cart</button>
     <ul class="plan-features">
       <li><span class="check yes-pink"></span> Post Optimizer <span class="feature-limit highlight">Unlimited</span></li>
       <li><span class="check yes-pink"></span> Virality Calculator <span class="feature-limit highlight">Unlimited</span></li>
@@ -722,7 +722,7 @@
     </div>
     <div class="price-annual-note" id="note-growth">&nbsp;</div>
     <p class="plan-desc">More power for serious creators scaling their content output.</p>
-    <button class="btn-pack" id="checkout-btn-growth" data-cart-type="plan" data-cart-id="growth">Add to Cart</button>
+    <button class="btn-pack" id="checkout-btn-growth" onclick="spAddToCart('plan','growth')">Add to Cart</button>
     <ul class="plan-features">
       <li><span class="check yes"></span> Everything in Pro</li>
       <li><span class="check yes"></span> Clip Studio <span class="feature-limit">50/mo</span></li>
@@ -774,7 +774,7 @@
         <span class="pack-per">one-time</span>
       </div>
       <div class="pack-per-gen">$0.25 per generation</div>
-      <button class="btn-pack" data-cart-type="pack" data-cart-id="pack_20">Add to Cart</button>
+      <button class="btn-pack" onclick="spAddToCart('pack','pack_20')">Add to Cart</button>
     </div>
 
     <!-- 50 gens best value highlighted -->
@@ -788,7 +788,7 @@
         <span class="pack-per">one-time</span>
       </div>
       <div class="pack-per-gen">$0.20 per generation</div>
-      <button class="btn-pack" style="background:rgba(168,85,247,0.2);border-color:rgba(168,85,247,0.5);" data-cart-type="pack" data-cart-id="pack_50">Add to Cart</button>
+      <button class="btn-pack" style="background:rgba(168,85,247,0.2);border-color:rgba(168,85,247,0.5);" onclick="spAddToCart('pack','pack_50')">Add to Cart</button>
     </div>
 
     <!-- 100 gens -->
@@ -801,7 +801,7 @@
         <span class="pack-per">one-time</span>
       </div>
       <div class="pack-per-gen">$0.15 per generation</div>
-      <button class="btn-pack" data-cart-type="pack" data-cart-id="pack_100">Add to Cart</button>
+      <button class="btn-pack" onclick="spAddToCart('pack','pack_100')">Add to Cart</button>
     </div>
 
   </div>
@@ -2720,9 +2720,9 @@
 </footer>
 
 <!-- Cart Modal -->
-<div id="cartModal" onclick="if(event.target===this)closeCart()" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(8,6,15,0.88);backdrop-filter:blur(14px);align-items:center;justify-content:center;padding:20px;">
+<div id="cartModal" onclick="if(event.target===this)spCloseCart()" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(8,6,15,0.88);backdrop-filter:blur(14px);align-items:center;justify-content:center;padding:20px;">
   <div style="background:linear-gradient(160deg,#1a1230 0%,#0d0b18 100%);border:1px solid rgba(139,92,246,0.3);border-radius:22px;width:100%;max-width:460px;max-height:92vh;overflow-y:auto;padding:36px;position:relative;box-shadow:0 40px 100px rgba(139,92,246,0.18);">
-    <button onclick="closeCart()" style="position:absolute;top:16px;right:16px;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);border-radius:50%;width:32px;height:32px;color:rgba(241,240,247,0.6);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;font-family:sans-serif;">×</button>
+    <button onclick="spCloseCart()" style="position:absolute;top:16px;right:16px;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);border-radius:50%;width:32px;height:32px;color:rgba(241,240,247,0.6);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;font-family:sans-serif;">×</button>
     <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#f1f0f7;margin-bottom:20px;">Your Cart</div>
     <div id="cartItems"></div>
     <div id="cartFooter" style="display:none;margin-top:20px;padding-top:20px;border-top:1px solid rgba(139,92,246,0.15);">
@@ -2730,7 +2730,7 @@
         <span style="font-family:'DM Sans',sans-serif;font-size:14px;color:rgba(148,144,176,0.8);">Total</span>
         <span id="cartTotalDisplay" style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#f1f0f7;"></span>
       </div>
-      <button id="cartCheckoutBtn" onclick="cartCheckout()" style="width:100%;padding:15px;background:linear-gradient(135deg,#8b5cf6,#ec4899);border:none;border-radius:12px;color:#fff;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:0.3px;">Checkout</button>
+      <button id="cartCheckoutBtn" onclick="spCartCheckout()" style="width:100%;padding:15px;background:linear-gradient(135deg,#8b5cf6,#ec4899);border:none;border-radius:12px;color:#fff;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:0.3px;">Checkout</button>
       <p style="font-family:'DM Sans',sans-serif;font-size:11px;color:rgba(148,144,176,0.5);text-align:center;margin:12px 0 0;">Secured by <strong style="color:rgba(148,144,176,0.7);">Stripe</strong></p>
     </div>
   </div>
@@ -2756,7 +2756,105 @@
 </div>
 
 <!-- App JavaScript -->
-<script src="app.js?v=4"></script>
+<script src="app.js?v=5"></script>
+
+<!-- Cart: inline fallback so it always works regardless of app.js scope -->
+<script>
+(function() {
+  var LABELS = {
+    pack_20:          { title: '20 Generations',  sub: 'One-time · $4.99',        price: '$4.99'   },
+    pack_50:          { title: '50 Generations',  sub: 'One-time · $9.99',        price: '$9.99'   },
+    pack_100:         { title: '100 Generations', sub: 'One-time · $14.99',       price: '$14.99'  },
+    'pro-monthly':    { title: 'Pro Plan',        sub: 'Monthly · $9.99/mo',      price: '$9.99/mo'  },
+    'pro-annual':     { title: 'Pro Plan',        sub: 'Annual · $6.99/mo',       price: '$6.99/mo'  },
+    'growth-monthly': { title: 'Growth Plan',     sub: 'Monthly · $20/mo',        price: '$20/mo'    },
+    'growth-annual':  { title: 'Growth Plan',     sub: 'Annual · $13.99/mo',      price: '$13.99/mo' }
+  };
+  var cart = [];
+
+  function getIsAnnual() {
+    try { return window._isAnnual || false; } catch(e) { return false; }
+  }
+
+  function renderCart() {
+    var itemsEl = document.getElementById('cartItems');
+    var footerEl = document.getElementById('cartFooter');
+    var countEl = document.getElementById('cartCount');
+    var totalEl = document.getElementById('cartTotalDisplay');
+    if (!itemsEl) return;
+    if (countEl) countEl.textContent = cart.length;
+    if (cart.length === 0) {
+      itemsEl.innerHTML = '<div style="text-align:center;padding:48px 0;color:rgba(148,144,176,0.5);font-family:\'DM Sans\',sans-serif;font-size:14px;">Your cart is empty</div>';
+      if (footerEl) footerEl.style.display = 'none';
+      return;
+    }
+    itemsEl.innerHTML = cart.map(function(item, idx) {
+      return '<div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:14px;padding:18px 20px;margin-bottom:12px;display:flex;align-items:center;gap:16px;">'
+        + '<div style="flex:1;min-width:0;">'
+          + '<div style="font-family:\'Syne\',sans-serif;font-size:15px;font-weight:700;color:#f1f0f7;margin-bottom:4px;">' + item.title + '</div>'
+          + '<div style="font-family:\'DM Sans\',sans-serif;font-size:13px;color:rgba(148,144,176,0.75);">' + item.sub + '</div>'
+        + '</div>'
+        + '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;">'
+          + '<div style="font-family:\'Syne\',sans-serif;font-size:16px;font-weight:700;color:#8b5cf6;">' + item.price + '</div>'
+          + '<button onclick="spRemoveFromCart(' + idx + ')" style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);border-radius:6px;color:#f87171;font-family:\'DM Sans\',sans-serif;font-size:11px;font-weight:600;padding:4px 10px;cursor:pointer;">Remove</button>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+    if (totalEl) totalEl.textContent = cart.map(function(i) { return i.price; }).join(' + ');
+    if (footerEl) footerEl.style.display = 'block';
+  }
+
+  window.spAddToCart = function(type, id) {
+    var annual = getIsAnnual();
+    var billingKey = (type === 'plan') ? (annual ? 'annual' : 'monthly') : null;
+    var labelKey = type === 'plan' ? (id + '-' + billingKey) : id;
+    var label = LABELS[labelKey] || { title: id, sub: '', price: '' };
+    cart = cart.filter(function(i) { return i.type !== type; });
+    cart.push({ type: type, id: id, billingKey: billingKey, labelKey: labelKey, title: label.title, sub: label.sub, price: label.price });
+    renderCart();
+    window.spOpenCart();
+  };
+
+  window.spOpenCart = function() {
+    renderCart();
+    var modal = document.getElementById('cartModal');
+    if (modal) { modal.style.display = 'flex'; }
+  };
+
+  window.spCloseCart = function() {
+    var modal = document.getElementById('cartModal');
+    if (modal) modal.style.display = 'none';
+  };
+
+  window.spRemoveFromCart = function(idx) {
+    cart.splice(idx, 1);
+    renderCart();
+  };
+
+  window.spCartCheckout = function() {
+    if (cart.length === 0) return;
+    var item = cart[0];
+    window.spCloseCart();
+    if (typeof window.addToCart === 'function') {
+      // delegate to app.js checkout flow
+      if (typeof window._startCheckout === 'function') {
+        var btn = document.getElementById('cartCheckoutBtn');
+        window._startCheckout(
+          item.type === 'pack' ? { pack: item.id } : { plan: item.id, isAnnual: item.billingKey === 'annual' },
+          item.labelKey, btn
+        );
+      }
+    }
+  };
+
+  // Also keep cart in sync with app.js _cart if it exists
+  window.addToCart = window.spAddToCart;
+  window.openCart = window.spOpenCart;
+  window.closeCart = window.spCloseCart;
+  window.removeFromCart = window.spRemoveFromCart;
+  window.cartCheckout = window.spCartCheckout;
+})();
+</script>
 
 </body>
 </html>
