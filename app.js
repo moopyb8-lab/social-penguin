@@ -810,8 +810,8 @@ setTimeout(()=>{
 })();
 
 // ── Stripe Payment Element checkout ──────────────────────────────────────────
-const STRIPE_PK = 'pk_live_51TILkeIPYOU07j8mjLpy1miy7sHZGoiY90akLQhgtUONG7BxVK72JfSEMhv2arOi5IG4orFM9se12QGjXoyRRtc500kUZUPoA6';
-const CHECKOUT_LABELS = {
+var STRIPE_PK = 'pk_live_51TILkeIPYOU07j8mjLpy1miy7sHZGoiY90akLQhgtUONG7BxVK72JfSEMhv2arOi5IG4orFM9se12QGjXoyRRtc500kUZUPoA6';
+var CHECKOUT_LABELS = {
   pack_20:         { title: '20 Generations',  sub: 'One-time purchase · $4.99'        },
   pack_50:         { title: '50 Generations',  sub: 'One-time purchase · $9.99'        },
   pack_100:        { title: '100 Generations', sub: 'One-time purchase · $14.99'       },
@@ -829,7 +829,7 @@ function _getStripe() {
   return _stripe;
 }
 
-const _stripeAppearance = {
+var _stripeAppearance = {
   theme: 'night',
   variables: {
     colorPrimary: '#8b5cf6',
