@@ -812,17 +812,93 @@ setTimeout(()=>{
 // ── Stripe Payment Element checkout ──────────────────────────────────────────
 var STRIPE_PK = 'pk_live_51TILkeIPYOU07j8mjLpy1miy7sHZGoiY90akLQhgtUONG7BxVK72JfSEMhv2arOi5IG4orFM9se12QGjXoyRRtc500kUZUPoA6';
 var CHECKOUT_LABELS = {
-  pack_20:         { title: '20 Generations',  sub: 'One-time purchase · $4.99'        },
-  pack_50:         { title: '50 Generations',  sub: 'One-time purchase · $9.99'        },
-  pack_100:        { title: '100 Generations', sub: 'One-time purchase · $14.99'       },
-  'pro-monthly':   { title: 'Pro Plan',        sub: 'Monthly subscription · $9.99/mo'  },
-  'pro-annual':    { title: 'Pro Plan',        sub: 'Annual subscription · $6.99/mo'   },
-  'growth-monthly':{ title: 'Growth Plan',     sub: 'Monthly subscription · $20/mo'   },
-  'growth-annual': { title: 'Growth Plan',     sub: 'Annual subscription · $13.99/mo' },
+  pack_20:         { title: '20 Generations',  sub: 'One-time purchase · $4.99',        price: '$4.99'  },
+  pack_50:         { title: '50 Generations',  sub: 'One-time purchase · $9.99',        price: '$9.99'  },
+  pack_100:        { title: '100 Generations', sub: 'One-time purchase · $14.99',       price: '$14.99' },
+  'pro-monthly':   { title: 'Pro Plan',        sub: 'Monthly subscription · $9.99/mo',  price: '$9.99/mo'  },
+  'pro-annual':    { title: 'Pro Plan',        sub: 'Annual subscription · $6.99/mo',   price: '$6.99/mo'  },
+  'growth-monthly':{ title: 'Growth Plan',     sub: 'Monthly subscription · $20/mo',   price: '$20/mo'    },
+  'growth-annual': { title: 'Growth Plan',     sub: 'Annual subscription · $13.99/mo', price: '$13.99/mo' },
 };
 var _stripe = null;
 var _elements = null;
 var _checkoutCtx = null;
+
+// ── Cart ──────────────────────────────────────────────────────────────────────
+var _cart = [];
+
+function addToCart(type, id) {
+  var billingKey = (type === 'plan') ? (isAnnual ? 'annual' : 'monthly') : null;
+  var labelKey = type === 'plan' ? (id + '-' + billingKey) : id;
+  var label = CHECKOUT_LABELS[labelKey] || { title: id, sub: '', price: '' };
+  // Replace existing item of same type (only one plan or one pack at a time)
+  _cart = _cart.filter(function(i) { return i.type !== type; });
+  _cart.push({ type: type, id: id, billingKey: billingKey, labelKey: labelKey, title: label.title, sub: label.sub, price: label.price });
+  _renderCart();
+  openCart();
+}
+
+function _renderCart() {
+  var itemsEl = document.getElementById('cartItems');
+  var footerEl = document.getElementById('cartFooter');
+  var countEl = document.getElementById('cartCount');
+  var totalEl = document.getElementById('cartTotalDisplay');
+  if (!itemsEl) return;
+  if (countEl) countEl.textContent = _cart.length;
+  if (_cart.length === 0) {
+    itemsEl.innerHTML = '<div style="text-align:center;padding:48px 0;color:rgba(148,144,176,0.5);font-family:\'DM Sans\',sans-serif;font-size:14px;">Your cart is empty</div>';
+    if (footerEl) footerEl.style.display = 'none';
+    return;
+  }
+  itemsEl.innerHTML = _cart.map(function(item, idx) {
+    return '<div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:14px;padding:18px 20px;margin-bottom:12px;display:flex;align-items:center;gap:16px;">' +
+      '<div style="flex:1;min-width:0;">' +
+        '<div style="font-family:\'Syne\',sans-serif;font-size:15px;font-weight:700;color:#f1f0f7;margin-bottom:4px;">' + item.title + '</div>' +
+        '<div style="font-family:\'DM Sans\',sans-serif;font-size:13px;color:rgba(148,144,176,0.75);">' + item.sub + '</div>' +
+      '</div>' +
+      '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;">' +
+        '<div style="font-family:\'Syne\',sans-serif;font-size:16px;font-weight:700;color:#8b5cf6;">' + item.price + '</div>' +
+        '<button onclick="removeFromCart(' + idx + ')" style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);border-radius:6px;color:#f87171;font-family:\'DM Sans\',sans-serif;font-size:11px;font-weight:600;padding:4px 10px;cursor:pointer;">Remove</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  if (totalEl) totalEl.textContent = _cart.map(function(i) { return i.price; }).join(' + ');
+  if (footerEl) footerEl.style.display = 'block';
+}
+
+function removeFromCart(idx) {
+  _cart.splice(idx, 1);
+  _renderCart();
+}
+
+function openCart() {
+  var overlay = document.getElementById('cartOverlay');
+  var drawer = document.getElementById('cartDrawer');
+  _renderCart();
+  if (overlay) overlay.style.display = 'block';
+  if (drawer) { drawer.style.display = 'flex'; requestAnimationFrame(function() { drawer.style.transform = 'translateX(0)'; }); }
+}
+
+function closeCart() {
+  var overlay = document.getElementById('cartOverlay');
+  var drawer = document.getElementById('cartDrawer');
+  if (drawer) drawer.style.transform = 'translateX(100%)';
+  setTimeout(function() {
+    if (overlay) overlay.style.display = 'none';
+  }, 300);
+}
+
+async function cartCheckout() {
+  if (_cart.length === 0) return;
+  var item = _cart[0];
+  var btn = document.getElementById('cartCheckoutBtn');
+  closeCart();
+  if (item.type === 'pack') {
+    await _startCheckout({ pack: item.id }, item.labelKey, btn);
+  } else {
+    await _startCheckout({ plan: item.id, isAnnual: item.billingKey === 'annual' }, item.labelKey, btn);
+  }
+}
 
 function _getStripe() {
   if (!_stripe) _stripe = Stripe(STRIPE_PK);
