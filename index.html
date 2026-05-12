@@ -2856,16 +2856,16 @@
   window.spCartCheckout = function() {
     if (cart.length === 0) return;
     var item = cart[0];
+    var btn = document.getElementById('cartCheckoutBtn');
     window.spCloseCart();
-    if (typeof window.addToCart === 'function') {
-      // delegate to app.js checkout flow
-      if (typeof window._startCheckout === 'function') {
-        var btn = document.getElementById('cartCheckoutBtn');
-        window._startCheckout(
-          item.type === 'pack' ? { pack: item.id } : { plan: item.id, isAnnual: item.billingKey === 'annual' },
-          item.labelKey, btn
-        );
-      }
+    if (typeof window._startCheckout === 'function') {
+      window._startCheckout(
+        item.type === 'pack' ? { pack: item.id } : { plan: item.id, isAnnual: item.billingKey === 'annual' },
+        item.labelKey,
+        btn
+      );
+    } else {
+      alert('Checkout not ready yet. Please refresh the page and try again.');
     }
   };
 

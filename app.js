@@ -1040,6 +1040,7 @@ function closeCheckout() {
   _elements = null;
   _checkoutCtx = null;
 }
+window._startCheckout = _startCheckout;
 
 // Handle post-3DS redirect for subscriptions
 (function() {
