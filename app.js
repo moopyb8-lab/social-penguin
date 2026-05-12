@@ -888,6 +888,13 @@ function closeCart() {
   }, 300);
 }
 
+// Expose cart functions globally in case of IIFE scope issues
+window.addToCart = addToCart;
+window.openCart = openCart;
+window.closeCart = closeCart;
+window.removeFromCart = removeFromCart;
+window.cartCheckout = cartCheckout;
+
 async function cartCheckout() {
   if (_cart.length === 0) return;
   var item = _cart[0];
