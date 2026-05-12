@@ -831,7 +831,6 @@ function addToCart(type, id) {
   var billingKey = (type === 'plan') ? (isAnnual ? 'annual' : 'monthly') : null;
   var labelKey = type === 'plan' ? (id + '-' + billingKey) : id;
   var label = CHECKOUT_LABELS[labelKey] || { title: id, sub: '', price: '' };
-  // Replace existing item of same type (only one plan or one pack at a time)
   _cart = _cart.filter(function(i) { return i.type !== type; });
   _cart.push({ type: type, id: id, billingKey: billingKey, labelKey: labelKey, title: label.title, sub: label.sub, price: label.price });
   _renderCart();
@@ -872,20 +871,14 @@ function removeFromCart(idx) {
 }
 
 function openCart() {
-  var overlay = document.getElementById('cartOverlay');
-  var drawer = document.getElementById('cartDrawer');
   _renderCart();
-  if (overlay) overlay.style.display = 'block';
-  if (drawer) { drawer.style.display = 'flex'; requestAnimationFrame(function() { drawer.style.transform = 'translateX(0)'; }); }
+  var modal = document.getElementById('cartModal');
+  if (modal) modal.style.display = 'flex';
 }
 
 function closeCart() {
-  var overlay = document.getElementById('cartOverlay');
-  var drawer = document.getElementById('cartDrawer');
-  if (drawer) drawer.style.transform = 'translateX(100%)';
-  setTimeout(function() {
-    if (overlay) overlay.style.display = 'none';
-  }, 300);
+  var modal = document.getElementById('cartModal');
+  if (modal) modal.style.display = 'none';
 }
 
 // Expose cart functions globally in case of IIFE scope issues
