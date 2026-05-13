@@ -811,6 +811,7 @@ setTimeout(()=>{
 
 // ── Stripe Payment Element checkout ──────────────────────────────────────────
 var STRIPE_PK = 'pk_live_51TILkeIPYOU07j8mjLpy1miy7sHZGoiY90akLQhgtUONG7BxVK72JfSEMhv2arOi5IG4orFM9se12QGjXoyRRtc500kUZUPoA6';
+window.STRIPE_PK = STRIPE_PK;
 window.CHECKOUT_LABELS = {
   pack_20:         { title: '20 Generations',  sub: 'One-time purchase · $4.99',        price: '$4.99'  },
   pack_50:         { title: '50 Generations',  sub: 'One-time purchase · $9.99',        price: '$9.99'  },
@@ -914,7 +915,7 @@ async function cartCheckout() {
 }
 
 function _getStripe() {
-  if (!_stripe) _stripe = Stripe(STRIPE_PK);
+  if (!_stripe) _stripe = Stripe(window.STRIPE_PK || STRIPE_PK || 'pk_live_51TILkeIPYOU07j8mjLpy1miy7sHZGoiY90akLQhgtUONG7BxVK72JfSEMhv2arOi5IG4orFM9se12QGjXoyRRtc500kUZUPoA6');
   return _stripe;
 }
 
