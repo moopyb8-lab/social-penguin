@@ -365,7 +365,7 @@ h1 {
         <label for="m-card" onclick="selectMethod('card')">
           <span class="radio-dot"></span>
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
-          Card
+          Debit / Card
         </label>
       </div>
       <div class="method-option" id="applepay-option" style="display:none;">
@@ -376,28 +376,12 @@ h1 {
           Apple Pay
         </label>
       </div>
-      <div class="method-option">
+      <div class="method-option" id="cashapp-option">
         <input type="radio" name="method" id="m-cashapp" value="cashapp">
         <label for="m-cashapp" onclick="selectMethod('cashapp')">
           <span class="radio-dot"></span>
           <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M20.1 11.5l-1.2 1.2c-.8-.7-1.8-1.1-2.9-1.1-1.1 0-2 .4-2.6 1.1-.6.7-.9 1.6-.9 2.6 0 1 .3 1.8.9 2.5.6.7 1.5 1 2.6 1 1 0 2-.4 2.8-1.1l1.3 1.3c-1.1 1-2.5 1.6-4.1 1.6-1.7 0-3.1-.6-4.2-1.7-1.1-1.1-1.6-2.5-1.6-4.1 0-1.6.6-3 1.7-4.1 1.1-1.1 2.5-1.7 4.1-1.7 1.5 0 2.9.5 4.1 1.5zm.9-1.5l-1.4-1.4 1-1 1.4 1.4-1 1zm-7.6 10.6l1.4 1.4-1 1-1.4-1.4 1-1z"/></svg>
           Cash App
-        </label>
-      </div>
-      <div class="method-option">
-        <input type="radio" name="method" id="m-venmo" value="venmo">
-        <label for="m-venmo" onclick="selectMethod('venmo')">
-          <span class="radio-dot"></span>
-          <svg width="14" height="14" viewBox="0 0 32 32" fill="currentColor"><path d="M27 5.5c.9 1.4 1.3 2.9 1.3 4.7 0 5.9-5.1 13.5-9.2 18.8H10.2L5.7 6.2l7.7-.7 2.1 16c1.9-3.1 4.2-7.9 4.2-11.1 0-1.8-.3-3-.9-4l8.2-1z"/></svg>
-          Venmo
-        </label>
-      </div>
-      <div class="method-option">
-        <input type="radio" name="method" id="m-paypal" value="paypal">
-        <label for="m-paypal" onclick="selectMethod('paypal')">
-          <span class="radio-dot"></span>
-          <svg width="15" height="15" viewBox="0 0 32 32" fill="currentColor"><path d="M25.6 7.4C24.4 5.9 22.2 5 19.6 5H9.6c-.7 0-1.3.5-1.5 1.2L5 26.5c-.1.5.3 1 .8 1h5.8l1.5-9.5c.2-.7.8-1.2 1.5-1.2H17c6.3 0 11.2-2.6 12.7-10 .1-.5.2-1.1.2-1.6-.4-1.7-1.1-3-4.3-3.1z" opacity=".6"/><path d="M25.6 7.4c-.1.5-.2 1.1-.2 1.6-1.5 7.4-6.4 10-12.7 10h-2.5c-.7 0-1.3.5-1.5 1.2l-2 12.8c-.1.5.3.9.8.9h5.2c.6 0 1.2-.5 1.3-1.1l1.3-8.4c.2-.6.7-1.1 1.3-1.1h2.8c5.6 0 10-2.3 11.3-8.9.5-2.7.1-5-1.1-6.1z"/></svg>
-          PayPal
         </label>
       </div>
     </div>
@@ -561,6 +545,11 @@ var _currentMethod = 'card';
         document.getElementById('applepay-option').style.display = 'block';
       }
     });
+
+    // Hide Cash App for subscriptions (SetupIntent)
+    if (_ctx.type === 'setup') {
+      document.getElementById('cashapp-option').style.display = 'none';
+    }
     pr.on('paymentmethod', async function(ev) {
       var res = _ctx.type === 'setup'
         ? await _stripe.confirmCardSetup(_ctx.clientSecret, { payment_method: ev.paymentMethod.id }, { handleActions: false })
@@ -650,7 +639,7 @@ function selectMethod(method) {
     payBtn.style.display = 'none';
   } else {
     payBtn.style.display = 'block';
-    var names = { cashapp: 'Cash App', venmo: 'Venmo', paypal: 'PayPal' };
+    var names = { cashapp: 'Cash App' };
     payBtn.textContent = 'Continue with ' + (names[method] || method);
     payBtn.disabled = false;
 
@@ -658,8 +647,6 @@ function selectMethod(method) {
     var rb = document.getElementById('redir-btn-el');
     rb.className = 'redir-btn';
     if (method === 'cashapp') { rb.classList.add('btn-cashapp'); rb.style.color = '#000'; rb.textContent = 'Continue with Cash App'; }
-    else if (method === 'venmo') { rb.classList.add('btn-venmo'); rb.style.color = '#fff'; rb.textContent = 'Continue with Venmo'; }
-    else if (method === 'paypal') { rb.classList.add('btn-paypal'); rb.style.color = '#fff'; rb.textContent = 'Continue with PayPal'; }
     rb.disabled = false;
   }
 }
