@@ -2858,7 +2858,7 @@
     var item = cart[0];
     var btn = document.getElementById('cartCheckoutBtn');
     var user = window._spUser;
-    if (!user) { window.spCloseCart(); if (typeof showPage === 'function') showPage('login'); return; }
+    if (!user) { sessionStorage.setItem('sp_pending_cart', JSON.stringify({type: item.type, id: item.id})); window.spCloseCart(); if (typeof showPage === 'function') showPage('login'); return; }
     var orig = btn ? btn.textContent : '';
     if (btn) { btn.textContent = 'Loading…'; btn.disabled = true; }
     try {
