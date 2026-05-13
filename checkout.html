@@ -172,6 +172,74 @@
 
   #payment-element { width: 100%; }
 
+  /* Method tabs */
+  .method-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .method-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px 10px;
+    background: rgba(139,92,246,0.06);
+    border: 1px solid rgba(139,92,246,0.2);
+    border-radius: 12px;
+    color: rgba(148,144,176,0.7);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .method-tab.active {
+    background: rgba(139,92,246,0.14);
+    border-color: rgba(139,92,246,0.55);
+    color: #f1f0f7;
+  }
+  .method-tab:hover:not(.active) {
+    border-color: rgba(139,92,246,0.35);
+    color: rgba(241,240,247,0.85);
+  }
+
+  .redirect-note {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px;
+    background: rgba(139,92,246,0.06);
+    border: 1px solid rgba(139,92,246,0.15);
+    border-radius: 12px;
+    font-size: 13px;
+    color: rgba(148,144,176,0.75);
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  .alt-pay-btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: opacity 0.2s, transform 0.15s;
+  }
+  .alt-pay-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .paypal-btn { background: #003087; }
+  .venmo-btn  { background: #3D95CE; }
+
   #payment-error {
     display: none;
     color: #f87171;
@@ -316,11 +384,55 @@
     </a>
 
     <div class="payment-heading">Payment details</div>
-    <div class="payment-sub">Your payment is processed securely by Stripe.</div>
+    <div class="payment-sub">Choose how you'd like to pay.</div>
 
-    <div id="payment-element"></div>
+    <!-- Method picker -->
+    <div class="method-tabs">
+      <button class="method-tab active" data-method="card" onclick="switchMethod('card')">
+        <svg width="18" height="13" viewBox="0 0 18 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="16" height="11" rx="2"/><path d="M1 5h16"/></svg>
+        Card
+      </button>
+      <button class="method-tab" data-method="paypal" onclick="switchMethod('paypal')">
+        <svg width="16" height="18" viewBox="0 0 16 18" fill="currentColor"><path d="M13.3 2.5C12.5 1.6 11.1 1 9.3 1H4.2c-.4 0-.8.3-.9.7L1 15.3c-.1.3.2.6.5.6h3.2l.8-5.1v.2c.1-.4.5-.7.9-.7h1.8c3.5 0 6.2-1.4 7-5.5.1-.3.1-.6.1-.9-.2-1-.6-1.9-1.4-2.4z" opacity=".5"/><path d="M13.3 2.5c-.1.3-.1.6-.1.9-.8 4-3.5 5.5-7 5.5H4.4c-.4 0-.8.3-.9.7L2.6 17c-.1.3.1.5.4.5h2.9c.4 0 .7-.3.8-.6l.7-4.6c.1-.4.4-.6.8-.6h1.6c3.1 0 5.5-1.3 6.2-4.9.3-1.5.1-2.8-.7-3.3z"/></svg>
+        PayPal
+      </button>
+      <button class="method-tab" data-method="venmo" onclick="switchMethod('venmo')">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M15.5 1.5c.5.8.7 1.7.7 2.8 0 3.5-3 8-5.4 11.2H5.3L3 2.2l4.6-.4 1.2 9.5c1.1-1.8 2.5-4.7 2.5-6.6 0-1.1-.2-1.8-.5-2.4L15.5 1.5z"/></svg>
+        Venmo
+      </button>
+    </div>
+
+    <!-- Card fields -->
+    <div id="section-card">
+      <div id="payment-element"></div>
+      <button id="pay-btn" disabled>Pay with Card</button>
+    </div>
+
+    <!-- PayPal -->
+    <div id="section-paypal" style="display:none;">
+      <div class="redirect-note">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="rgba(148,144,176,0.5)" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="9"/><path d="M10 6v4M10 14h.01"/></svg>
+        You'll be redirected to PayPal to complete your payment securely.
+      </div>
+      <button id="paypal-btn" class="alt-pay-btn paypal-btn">
+        <svg width="20" height="22" viewBox="0 0 16 18" fill="white"><path d="M13.3 2.5C12.5 1.6 11.1 1 9.3 1H4.2c-.4 0-.8.3-.9.7L1 15.3c-.1.3.2.6.5.6h3.2l.8-5.1v.2c.1-.4.5-.7.9-.7h1.8c3.5 0 6.2-1.4 7-5.5.1-.3.1-.6.1-.9-.2-1-.6-1.9-1.4-2.4z" opacity=".8"/><path d="M13.3 2.5c-.1.3-.1.6-.1.9-.8 4-3.5 5.5-7 5.5H4.4c-.4 0-.8.3-.9.7L2.6 17c-.1.3.1.5.4.5h2.9c.4 0 .7-.3.8-.6l.7-4.6c.1-.4.4-.6.8-.6h1.6c3.1 0 5.5-1.3 6.2-4.9.3-1.5.1-2.8-.7-3.3z"/></svg>
+        Continue with PayPal
+      </button>
+    </div>
+
+    <!-- Venmo -->
+    <div id="section-venmo" style="display:none;">
+      <div class="redirect-note">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="rgba(148,144,176,0.5)" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="9"/><path d="M10 6v4M10 14h.01"/></svg>
+        You'll be redirected to Venmo to complete your payment securely.
+      </div>
+      <button id="venmo-btn" class="alt-pay-btn venmo-btn">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="white"><path d="M15.5 1.5c.5.8.7 1.7.7 2.8 0 3.5-3 8-5.4 11.2H5.3L3 2.2l4.6-.4 1.2 9.5c1.1-1.8 2.5-4.7 2.5-6.6 0-1.1-.2-1.8-.5-2.4L15.5 1.5z"/></svg>
+        Continue with Venmo
+      </button>
+    </div>
+
     <div id="payment-error"></div>
-    <button id="pay-btn" disabled>Pay now</button>
     <p class="fine-print">By completing this purchase you agree to our <a href="/terms" style="color:rgba(148,144,176,0.6)">Terms of Service</a>. Subscriptions renew automatically — cancel anytime.</p>
   </div>
 
@@ -343,7 +455,7 @@
 
   document.getElementById('co-title').textContent = ctx.title || 'Your order';
   document.getElementById('co-sub').textContent   = ctx.sub   || '';
-  document.getElementById('pay-btn').textContent  = ctx.type === 'setup' ? 'Subscribe now' : 'Pay now';
+  document.getElementById('pay-btn').textContent  = ctx.type === 'setup' ? 'Subscribe now' : 'Pay with Card';
 
   var stripe = Stripe('pk_live_51TILkeIPYOU07j8mjLpy1miy7sHZGoiY90akLQhgtUONG7BxVK72JfSEMhv2arOi5IG4orFM9se12QGjXoyRRtc500kUZUPoA6');
   var elements = stripe.elements({
@@ -370,25 +482,42 @@
     },
   });
 
-  var payEl = elements.create('payment', { layout: 'tabs' });
+  // Card element — no tabs, just card fields
+  var payEl = elements.create('payment', {
+    layout: { type: 'accordion', defaultCollapsed: false, radios: false, spacedAccordionItems: false },
+    paymentMethodOrder: ['card'],
+  });
   payEl.mount('#payment-element');
   payEl.on('ready', function() {
     document.getElementById('loading').style.display = 'none';
-    var layout = document.getElementById('main-layout');
-    layout.style.visibility = 'visible';
+    document.getElementById('main-layout').style.visibility = 'visible';
     document.getElementById('pay-btn').disabled = false;
   });
+
+  var returnUrl = 'https://socialpenguin.net/dashboard?checkout=success'
+    + (ctx.type === 'setup' ? '&finalize=1&plan=' + (ctx.plan||'') + '&billing=' + (ctx.billingKey||'') + '&uid=' + (ctx.uid||'') : '');
+
+  async function confirmPayment(paymentMethodType) {
+    var errEl = document.getElementById('payment-error');
+    errEl.style.display = 'none';
+    var result = ctx.type === 'setup'
+      ? await stripe.confirmSetup({ elements: elements, confirmParams: { return_url: returnUrl }, redirect: paymentMethodType === 'card' ? 'if_required' : 'always' })
+      : await stripe.confirmPayment({ elements: elements, confirmParams: { return_url: returnUrl }, redirect: paymentMethodType === 'card' ? 'if_required' : 'always' });
+    if (result && result.error) {
+      errEl.textContent = result.error.message;
+      errEl.style.display = 'block';
+      return false;
+    }
+    return true;
+  }
 
   document.getElementById('pay-btn').addEventListener('click', async function() {
     var btn = this;
     var errEl = document.getElementById('payment-error');
-    var label = ctx.type === 'setup' ? 'Subscribe now' : 'Pay now';
+    var label = ctx.type === 'setup' ? 'Subscribe now' : 'Pay with Card';
     btn.textContent = 'Processing…';
     btn.disabled = true;
     errEl.style.display = 'none';
-
-    var returnUrl = 'https://socialpenguin.net/dashboard?checkout=success'
-      + (ctx.type === 'setup' ? '&finalize=1&plan=' + (ctx.plan||'') + '&billing=' + (ctx.billingKey||'') + '&uid=' + (ctx.uid||'') : '');
 
     var result = ctx.type === 'setup'
       ? await stripe.confirmSetup({ elements: elements, confirmParams: { return_url: returnUrl }, redirect: 'if_required' })
@@ -413,7 +542,49 @@
     sessionStorage.removeItem('sp_checkout');
     window.location.href = '/dashboard?checkout=success';
   });
+
+  // PayPal button
+  document.getElementById('paypal-btn').addEventListener('click', async function() {
+    var btn = this;
+    btn.textContent = 'Redirecting to PayPal…';
+    btn.disabled = true;
+    var result = ctx.type === 'setup'
+      ? await stripe.confirmSetup({ elements: elements, confirmParams: { return_url: returnUrl }, redirect: 'always' })
+      : await stripe.confirmPayment({ elements: elements, confirmParams: { return_url: returnUrl }, redirect: 'always' });
+    if (result && result.error) {
+      document.getElementById('payment-error').textContent = result.error.message;
+      document.getElementById('payment-error').style.display = 'block';
+      btn.innerHTML = '<svg width="20" height="22" viewBox="0 0 16 18" fill="white"><path d="M13.3 2.5C12.5 1.6 11.1 1 9.3 1H4.2c-.4 0-.8.3-.9.7L1 15.3c-.1.3.2.6.5.6h3.2l.8-5.1v.2c.1-.4.5-.7.9-.7h1.8c3.5 0 6.2-1.4 7-5.5.1-.3.1-.6.1-.9-.2-1-.6-1.9-1.4-2.4z" opacity=".8"/><path d="M13.3 2.5c-.1.3-.1.6-.1.9-.8 4-3.5 5.5-7 5.5H4.4c-.4 0-.8.3-.9.7L2.6 17c-.1.3.1.5.4.5h2.9c.4 0 .7-.3.8-.6l.7-4.6c.1-.4.4-.6.8-.6h1.6c3.1 0 5.5-1.3 6.2-4.9.3-1.5.1-2.8-.7-3.3z"/></svg> Continue with PayPal';
+      btn.disabled = false;
+    }
+  });
+
+  // Venmo button
+  document.getElementById('venmo-btn').addEventListener('click', async function() {
+    var btn = this;
+    btn.textContent = 'Redirecting to Venmo…';
+    btn.disabled = true;
+    var result = ctx.type === 'setup'
+      ? await stripe.confirmSetup({ elements: elements, confirmParams: { return_url: returnUrl }, redirect: 'always' })
+      : await stripe.confirmPayment({ elements: elements, confirmParams: { return_url: returnUrl }, redirect: 'always' });
+    if (result && result.error) {
+      document.getElementById('payment-error').textContent = result.error.message;
+      document.getElementById('payment-error').style.display = 'block';
+      btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 18 18" fill="white"><path d="M15.5 1.5c.5.8.7 1.7.7 2.8 0 3.5-3 8-5.4 11.2H5.3L3 2.2l4.6-.4 1.2 9.5c1.1-1.8 2.5-4.7 2.5-6.6 0-1.1-.2-1.8-.5-2.4L15.5 1.5z"/></svg> Continue with Venmo';
+      btn.disabled = false;
+    }
+  });
 })();
+
+function switchMethod(method) {
+  ['card','paypal','venmo'].forEach(function(m) {
+    document.getElementById('section-' + m).style.display = m === method ? 'block' : 'none';
+  });
+  document.querySelectorAll('.method-tab').forEach(function(tab) {
+    tab.classList.toggle('active', tab.dataset.method === method);
+  });
+  document.getElementById('payment-error').style.display = 'none';
+}
 </script>
 </body>
 </html>
