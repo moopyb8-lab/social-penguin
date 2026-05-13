@@ -9,6 +9,9 @@
 <script src="https://js.stripe.com/v3/"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { height: 100%; }
+
   body {
     background: #08060f;
     color: #f1f0f7;
@@ -16,197 +19,370 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
   }
-  .back-link {
-    position: fixed;
-    top: 24px;
-    left: 24px;
+
+  /* ── Layout ── */
+  .layout {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    color: rgba(148,144,176,0.7);
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 600;
-    transition: color 0.2s;
+    flex: 1;
+    min-height: 100vh;
   }
-  .back-link:hover { color: #f1f0f7; }
-  .card {
-    background: linear-gradient(160deg, #1a1230 0%, #0d0b18 100%);
-    border: 1px solid rgba(139,92,246,0.25);
-    border-radius: 24px;
-    padding: 40px;
-    width: 100%;
-    max-width: 480px;
-    box-shadow: 0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px rgba(139,92,246,0.06);
+
+  /* ── Left panel ── */
+  .left {
+    width: 42%;
+    background: linear-gradient(160deg, #130f24 0%, #0d0b18 100%);
+    border-right: 1px solid rgba(139,92,246,0.15);
+    display: flex;
+    flex-direction: column;
+    padding: 56px 60px;
+    position: relative;
+    overflow: hidden;
   }
+
+  .left::before {
+    content: '';
+    position: absolute;
+    top: -120px; left: -120px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(139,92,246,0.18) 0%, transparent 65%);
+    pointer-events: none;
+  }
+
   .logo {
     font-family: 'Syne', sans-serif;
-    font-size: 15px;
+    font-size: 20px;
     font-weight: 800;
     color: #8b5cf6;
     letter-spacing: 0.5px;
-    margin-bottom: 28px;
+    margin-bottom: 64px;
   }
-  .divider {
-    height: 1px;
-    background: rgba(139,92,246,0.15);
-    margin: 20px 0;
-  }
-  .order-label {
+
+  .order-eyebrow {
     font-size: 11px;
     font-weight: 700;
-    letter-spacing: 2px;
+    letter-spacing: 2.5px;
     text-transform: uppercase;
     color: #8b5cf6;
-    margin-bottom: 6px;
+    margin-bottom: 12px;
   }
+
   .order-title {
     font-family: 'Syne', sans-serif;
-    font-size: 22px;
+    font-size: 32px;
     font-weight: 700;
     color: #f1f0f7;
-    margin-bottom: 4px;
+    line-height: 1.2;
+    margin-bottom: 10px;
   }
+
   .order-sub {
-    font-size: 14px;
+    font-size: 16px;
     color: rgba(148,144,176,0.8);
+    line-height: 1.5;
+    margin-bottom: 40px;
   }
-  #payment-element { margin-top: 4px; }
+
+  .order-divider {
+    height: 1px;
+    background: rgba(139,92,246,0.15);
+    margin-bottom: 32px;
+  }
+
+  .feature-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: auto;
+  }
+
+  .feature-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: rgba(241,240,247,0.75);
+  }
+
+  .feature-list li::before {
+    content: '';
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: rgba(139,92,246,0.15);
+    border: 1px solid rgba(139,92,246,0.35);
+    flex-shrink: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='8' viewBox='0 0 10 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 4l2.5 2.5L9 1' stroke='%238b5cf6' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  .secure-badges {
+    margin-top: 48px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: rgba(148,144,176,0.55);
+  }
+
+  .badge svg { opacity: 0.5; }
+
+  /* ── Right panel ── */
+  .right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 56px 60px;
+    overflow-y: auto;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(148,144,176,0.6);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 48px;
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: #f1f0f7; }
+
+  .payment-heading {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: #f1f0f7;
+    margin-bottom: 8px;
+  }
+
+  .payment-sub {
+    font-size: 14px;
+    color: rgba(148,144,176,0.7);
+    margin-bottom: 36px;
+  }
+
+  #payment-element { width: 100%; }
+
   #payment-error {
     display: none;
     color: #f87171;
     font-size: 13px;
-    margin-top: 14px;
-    padding: 10px 14px;
+    margin-top: 16px;
+    padding: 12px 16px;
     background: rgba(248,113,113,0.08);
     border: 1px solid rgba(248,113,113,0.2);
     border-radius: 10px;
   }
+
   #pay-btn {
     width: 100%;
-    margin-top: 20px;
-    padding: 16px;
+    margin-top: 24px;
+    padding: 18px;
     background: linear-gradient(135deg, #8b5cf6, #ec4899);
     border: none;
-    border-radius: 12px;
+    border-radius: 14px;
     color: #fff;
     font-family: 'Syne', sans-serif;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 700;
-    letter-spacing: 1.5px;
+    letter-spacing: 1px;
     text-transform: uppercase;
     cursor: pointer;
-    transition: opacity 0.2s, transform 0.2s;
+    transition: opacity 0.2s, transform 0.15s;
+    box-shadow: 0 8px 32px rgba(139,92,246,0.35);
   }
-  #pay-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
-  #pay-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
-  .secure-note {
+  #pay-btn:hover:not(:disabled) { opacity: 0.92; transform: translateY(-1px); }
+  #pay-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .fine-print {
+    margin-top: 16px;
+    font-size: 12px;
+    color: rgba(148,144,176,0.45);
     text-align: center;
-    font-size: 11px;
-    color: rgba(148,144,176,0.5);
-    margin-top: 14px;
+    line-height: 1.6;
   }
-  .secure-note strong { color: rgba(148,144,176,0.7); }
+
+  /* ── Loading / error ── */
   #loading {
-    text-align: center;
-    color: rgba(148,144,176,0.6);
-    font-size: 15px;
-    padding: 40px 0;
+    position: fixed; inset: 0;
+    background: #08060f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    z-index: 999;
   }
-  #error-state {
+  #loading p { color: rgba(148,144,176,0.6); font-size: 15px; }
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid rgba(139,92,246,0.2);
+    border-top-color: #8b5cf6;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #error-overlay {
     display: none;
-    text-align: center;
-    padding: 40px 0;
+    position: fixed; inset: 0;
+    background: #08060f;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    z-index: 998;
   }
-  #error-state p { color: #f87171; margin-bottom: 16px; }
-  #error-state a {
-    color: #8b5cf6;
-    text-decoration: none;
-    font-weight: 600;
+  #error-overlay p { color: #f87171; font-size: 16px; max-width: 380px; text-align: center; }
+  #error-overlay a {
+    color: #8b5cf6; text-decoration: none; font-weight: 600; font-size: 14px;
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 768px) {
+    .layout { flex-direction: column; }
+    .left {
+      width: 100%;
+      padding: 40px 28px 36px;
+      border-right: none;
+      border-bottom: 1px solid rgba(139,92,246,0.15);
+    }
+    .left::before { display: none; }
+    .logo { margin-bottom: 32px; }
+    .order-title { font-size: 24px; }
+    .feature-list, .secure-badges { display: none; }
+    .right { padding: 36px 28px 48px; }
+    .back-link { margin-bottom: 32px; }
   }
 </style>
 </head>
 <body>
 
-<a class="back-link" href="javascript:history.back()">
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15,18 9,12 15,6"/></svg>
-  Back
-</a>
+<div id="loading">
+  <div class="spinner"></div>
+  <p>Loading secure checkout…</p>
+</div>
 
-<div class="card">
-  <div class="logo">Social Penguin</div>
+<div id="error-overlay">
+  <p id="error-msg">Something went wrong. Please go back and try again.</p>
+  <a href="javascript:history.back()">← Go back</a>
+</div>
 
-  <div id="loading">Loading secure checkout…</div>
-  <div id="error-state">
-    <p id="error-msg">Something went wrong. Please go back and try again.</p>
-    <a href="/pricing">← Back to Pricing</a>
+<div class="layout" id="main-layout" style="visibility:hidden;">
+
+  <!-- Left: order summary -->
+  <div class="left">
+    <div class="logo">Social Penguin</div>
+
+    <div class="order-eyebrow">Your Order</div>
+    <div class="order-title" id="co-title">Loading…</div>
+    <div class="order-sub" id="co-sub"></div>
+
+    <div class="order-divider"></div>
+
+    <ul class="feature-list" id="co-features">
+      <li>Instant access after payment</li>
+      <li>Cancel or manage in Settings anytime</li>
+      <li>Secured by Stripe — we never store card details</li>
+      <li>30-day money-back guarantee</li>
+    </ul>
+
+    <div class="secure-badges">
+      <div class="badge">
+        <svg width="14" height="16" viewBox="0 0 14 16" fill="none" stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 1L1 3.5v4C1 11.09 3.58 14.28 7 15c3.42-.72 6-3.91 6-7.5v-4L7 1z"/></svg>
+        SSL Encrypted
+      </div>
+      <div class="badge">
+        <svg width="16" height="14" viewBox="0 0 16 14" fill="none" stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="14" height="10" rx="2"/><path d="M1 6h14"/></svg>
+        Stripe Payments
+      </div>
+    </div>
   </div>
 
-  <div id="checkout-ui" style="display:none;">
-    <div class="order-label">Order Summary</div>
-    <div class="order-title" id="co-title"></div>
-    <div class="order-sub" id="co-sub"></div>
-    <div class="divider"></div>
+  <!-- Right: payment form -->
+  <div class="right">
+    <a class="back-link" href="javascript:history.back()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15,18 9,12 15,6"/></svg>
+      Back
+    </a>
+
+    <div class="payment-heading">Payment details</div>
+    <div class="payment-sub">Your payment is processed securely by Stripe.</div>
+
     <div id="payment-element"></div>
     <div id="payment-error"></div>
     <button id="pay-btn" disabled>Pay now</button>
-    <p class="secure-note">Secured by <strong>Stripe</strong> · Cancel anytime in Settings</p>
+    <p class="fine-print">By completing this purchase you agree to our <a href="/terms" style="color:rgba(148,144,176,0.6)">Terms of Service</a>. Subscriptions renew automatically — cancel anytime.</p>
   </div>
+
 </div>
 
 <script>
 (async function() {
+  function showError(msg) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error-msg').textContent = msg;
+    document.getElementById('error-overlay').style.display = 'flex';
+  }
+
   var raw = sessionStorage.getItem('sp_checkout');
   if (!raw) { showError('No checkout session found. Please go back and try again.'); return; }
 
   var ctx;
   try { ctx = JSON.parse(raw); } catch(e) { showError('Invalid checkout data.'); return; }
+  if (!ctx.clientSecret) { showError('Missing payment details. Please go back and try again.'); return; }
 
-  if (!ctx.clientSecret) { showError('Missing payment details.'); return; }
-
-  // Fill order summary
   document.getElementById('co-title').textContent = ctx.title || 'Your order';
   document.getElementById('co-sub').textContent   = ctx.sub   || '';
   document.getElementById('pay-btn').textContent  = ctx.type === 'setup' ? 'Subscribe now' : 'Pay now';
 
-  // Mount Stripe
   var stripe = Stripe('pk_live_51TILkeIPYOU07j8mjLpy1miy7sHZGoiY90akLQhgtUONG7BxVK72JfSEMhv2arOi5IG4orFM9se12QGjXoyRRtc500kUZUPoA6');
-  var appearance = {
-    theme: 'night',
-    variables: {
-      colorPrimary: '#8b5cf6',
-      colorBackground: '#13101f',
-      colorText: '#f1f0f7',
-      colorDanger: '#f87171',
-      fontFamily: 'DM Sans, sans-serif',
-      borderRadius: '10px',
-      colorTextSecondary: 'rgba(241,240,247,0.6)',
-      colorTextPlaceholder: 'rgba(148,144,176,0.45)',
+  var elements = stripe.elements({
+    clientSecret: ctx.clientSecret,
+    appearance: {
+      theme: 'night',
+      variables: {
+        colorPrimary: '#8b5cf6',
+        colorBackground: '#0d0b18',
+        colorText: '#f1f0f7',
+        colorDanger: '#f87171',
+        fontFamily: 'DM Sans, sans-serif',
+        borderRadius: '10px',
+        colorTextSecondary: 'rgba(241,240,247,0.6)',
+        colorTextPlaceholder: 'rgba(148,144,176,0.45)',
+      },
+      rules: {
+        '.Input': { border: '1px solid rgba(139,92,246,0.25)', backgroundColor: 'rgba(139,92,246,0.06)' },
+        '.Input:focus': { border: '1px solid rgba(139,92,246,0.65)', boxShadow: '0 0 0 3px rgba(139,92,246,0.12)' },
+        '.Label': { color: 'rgba(241,240,247,0.65)', fontSize: '13px' },
+        '.Tab': { border: '1px solid rgba(139,92,246,0.2)', backgroundColor: 'rgba(139,92,246,0.05)' },
+        '.Tab--selected': { border: '1px solid rgba(139,92,246,0.6)', backgroundColor: 'rgba(139,92,246,0.12)' },
+      },
     },
-    rules: {
-      '.Input': { border: '1px solid rgba(139,92,246,0.25)', backgroundColor: 'rgba(139,92,246,0.06)' },
-      '.Input:focus': { border: '1px solid rgba(139,92,246,0.65)', boxShadow: '0 0 0 3px rgba(139,92,246,0.12)' },
-      '.Label': { color: 'rgba(241,240,247,0.65)', fontSize: '13px' },
-    },
-  };
+  });
 
-  var elements = stripe.elements({ clientSecret: ctx.clientSecret, appearance: appearance });
   var payEl = elements.create('payment', { layout: 'tabs' });
   payEl.mount('#payment-element');
-
-  await new Promise(function(resolve) { payEl.on('ready', resolve); });
-
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('checkout-ui').style.display = 'block';
-  document.getElementById('pay-btn').disabled = false;
+  payEl.on('ready', function() {
+    document.getElementById('loading').style.display = 'none';
+    var layout = document.getElementById('main-layout');
+    layout.style.visibility = 'visible';
+    document.getElementById('pay-btn').disabled = false;
+  });
 
   document.getElementById('pay-btn').addEventListener('click', async function() {
     var btn = this;
     var errEl = document.getElementById('payment-error');
+    var label = ctx.type === 'setup' ? 'Subscribe now' : 'Pay now';
     btn.textContent = 'Processing…';
     btn.disabled = true;
     errEl.style.display = 'none';
@@ -214,22 +390,18 @@
     var returnUrl = 'https://socialpenguin.net/dashboard?checkout=success'
       + (ctx.type === 'setup' ? '&finalize=1&plan=' + (ctx.plan||'') + '&billing=' + (ctx.billingKey||'') + '&uid=' + (ctx.uid||'') : '');
 
-    var result;
-    if (ctx.type === 'setup') {
-      result = await stripe.confirmSetup({ elements: elements, confirmParams: { return_url: returnUrl }, redirect: 'if_required' });
-    } else {
-      result = await stripe.confirmPayment({ elements: elements, confirmParams: { return_url: returnUrl }, redirect: 'if_required' });
-    }
+    var result = ctx.type === 'setup'
+      ? await stripe.confirmSetup({ elements: elements, confirmParams: { return_url: returnUrl }, redirect: 'if_required' })
+      : await stripe.confirmPayment({ elements: elements, confirmParams: { return_url: returnUrl }, redirect: 'if_required' });
 
     if (result.error) {
       errEl.textContent = result.error.message;
       errEl.style.display = 'block';
-      btn.textContent = ctx.type === 'setup' ? 'Subscribe now' : 'Pay now';
+      btn.textContent = label;
       btn.disabled = false;
       return;
     }
 
-    // Success — finalize subscription if needed
     if (ctx.type === 'setup' && result.setupIntent && result.setupIntent.status === 'succeeded') {
       await fetch('/api/finalize-subscription', {
         method: 'POST',
@@ -241,19 +413,7 @@
     sessionStorage.removeItem('sp_checkout');
     window.location.href = '/dashboard?checkout=success';
   });
-
-  function showError(msg) {
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('error-msg').textContent = msg;
-    document.getElementById('error-state').style.display = 'block';
-  }
 })();
-
-function showError(msg) {
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('error-msg').textContent = msg;
-  document.getElementById('error-state').style.display = 'block';
-}
 </script>
 </body>
 </html>
