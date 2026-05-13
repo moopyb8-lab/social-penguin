@@ -416,28 +416,35 @@ var _stripe, _elements, _cardEl, _ctx, _returnUrl;
     window.location.href = '/dashboard?checkout=success';
   });
 
-  // Redirect methods
+  // Redirect methods — no Payment Element needed, avoids Stripe's method picker UI
   async function confirmRedirect(methodType, btnEl, label) {
     var errEl = document.getElementById('payment-error');
     btnEl.textContent = 'Redirecting…'; btnEl.disabled = true;
     errEl.style.display = 'none';
-    // Create a separate elements instance for the redirect method
-    var redirectElements = _stripe.elements({ clientSecret: _ctx.clientSecret, appearance: appearance });
-    var pEl = redirectElements.create('payment', { paymentMethodOrder: [methodType] });
-    var temp = document.createElement('div');
-    temp.style.display = 'none';
-    document.body.appendChild(temp);
-    pEl.mount(temp);
-    pEl.on('ready', async function() {
-      var result = _ctx.type === 'setup'
-        ? await _stripe.confirmSetup({ elements: redirectElements, confirmParams: { return_url: _returnUrl }, redirect: 'always' })
-        : await _stripe.confirmPayment({ elements: redirectElements, confirmParams: { return_url: _returnUrl }, redirect: 'always' });
-      temp.remove();
+    try {
+      var result;
+      if (_ctx.type === 'setup') {
+        result = await _stripe.confirmSetup({
+          clientSecret: _ctx.clientSecret,
+          confirmParams: { return_url: _returnUrl, payment_method_data: { type: methodType } },
+          redirect: 'always',
+        });
+      } else {
+        result = await _stripe.confirmPayment({
+          clientSecret: _ctx.clientSecret,
+          confirmParams: { return_url: _returnUrl, payment_method_data: { type: methodType } },
+          redirect: 'always',
+        });
+      }
       if (result && result.error) {
         errEl.textContent = result.error.message; errEl.style.display = 'block';
         btnEl.textContent = label; btnEl.disabled = false;
       }
-    });
+    } catch(e) {
+      errEl.textContent = e.message || 'Payment failed. Please try again.';
+      errEl.style.display = 'block';
+      btnEl.textContent = label; btnEl.disabled = false;
+    }
   }
 
   document.getElementById('paypal-btn').addEventListener('click', function() {
