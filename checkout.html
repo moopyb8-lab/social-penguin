@@ -88,13 +88,23 @@
   .panel { display: none; }
   .panel.active { display: block; }
 
-  /* Card element */
-  #card-element-wrap {
+  /* Card fields */
+  .field-row { display: flex; gap: 10px; }
+  .field-wrap {
     background: rgba(139,92,246,0.05);
     border: 1px solid rgba(139,92,246,0.2);
     border-radius: 12px;
-    padding: 16px 18px;
-    margin-bottom: 16px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    flex: 1;
+  }
+  .field-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: rgba(148,144,176,0.5);
+    margin-bottom: 8px;
   }
 
   /* Pay button */
@@ -213,8 +223,19 @@
 
   <!-- Card -->
   <div class="panel" id="panel-card">
-    <div id="card-element-wrap">
-      <div id="card-element"></div>
+    <div class="field-wrap">
+      <div class="field-label">Card number</div>
+      <div id="card-number"></div>
+    </div>
+    <div class="field-row">
+      <div class="field-wrap">
+        <div class="field-label">Expiry</div>
+        <div id="card-expiry"></div>
+      </div>
+      <div class="field-wrap">
+        <div class="field-label">CVC</div>
+        <div id="card-cvc"></div>
+      </div>
     </div>
     <button class="pay-btn" id="pay-card-btn" disabled>Pay now</button>
   </div>
@@ -244,7 +265,7 @@
 </div>
 
 <script>
-var _stripe, _cardEl, _ctx, _returnUrl;
+var _stripe, _cardNumberEl, _cardExpiryEl, _cardCvcEl, _ctx, _returnUrl;
 
 (async function() {
   function showError(msg) {
@@ -267,21 +288,24 @@ var _stripe, _cardEl, _ctx, _returnUrl;
 
   _stripe = Stripe('pk_live_51TILkeIPYOU07j8mjLpy1miy7sHZGoiY90akLQhgtUONG7BxVK72JfSEMhv2arOi5IG4orFM9se12QGjXoyRRtc500kUZUPoA6');
 
-  _cardEl = _stripe.elements({ disableLink: true }).create('card', {
-    style: {
-      base: {
-        color: '#f1f0f7',
-        fontFamily: 'DM Sans, sans-serif',
-        fontSize: '15px',
-        fontSmoothing: 'antialiased',
-        '::placeholder': { color: 'rgba(148,144,176,0.4)' },
-      },
-      invalid: { color: '#f87171', iconColor: '#f87171' },
+  var elStyle = {
+    base: {
+      color: '#f1f0f7',
+      fontFamily: 'DM Sans, sans-serif',
+      fontSize: '15px',
+      fontSmoothing: 'antialiased',
+      '::placeholder': { color: 'rgba(148,144,176,0.4)' },
     },
-    hidePostalCode: false,
-  });
-  _cardEl.mount('#card-element');
-  _cardEl.on('ready', function() {
+    invalid: { color: '#f87171', iconColor: '#f87171' },
+  };
+  var _elements = _stripe.elements();
+  _cardNumberEl = _elements.create('cardNumber', { style: elStyle, showIcon: true });
+  _cardExpiryEl = _elements.create('cardExpiry', { style: elStyle });
+  _cardCvcEl    = _elements.create('cardCvc',    { style: elStyle });
+  _cardNumberEl.mount('#card-number');
+  _cardExpiryEl.mount('#card-expiry');
+  _cardCvcEl.mount('#card-cvc');
+  _cardNumberEl.on('ready', function() {
     document.getElementById('loading').style.display = 'none';
     document.getElementById('checkout-body').style.display = 'block';
     selectTab('card');
@@ -296,8 +320,8 @@ var _stripe, _cardEl, _ctx, _returnUrl;
     errEl.style.display = 'none';
 
     var result = _ctx.type === 'setup'
-      ? await _stripe.confirmCardSetup(_ctx.clientSecret, { payment_method: { card: _cardEl } })
-      : await _stripe.confirmCardPayment(_ctx.clientSecret, { payment_method: { card: _cardEl } });
+      ? await _stripe.confirmCardSetup(_ctx.clientSecret, { payment_method: { card: _cardNumberEl } })
+      : await _stripe.confirmCardPayment(_ctx.clientSecret, { payment_method: { card: _cardNumberEl } });
 
     if (result.error) {
       errEl.textContent = result.error.message; errEl.style.display = 'block';
