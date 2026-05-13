@@ -940,7 +940,7 @@ var _stripeAppearance = {
   },
 };
 
-async function _startCheckout(body, labelKey, btnEl) {
+async function _startCheckout(body, labelKey, btnEl, labelOverride) {
   const user = window._spUser;
   if (!user) { showPage('login'); return; }
   if (typeof Stripe === 'undefined') { alert('Payment system failed to load. Please refresh the page and try again.'); return; }
@@ -958,7 +958,7 @@ async function _startCheckout(body, labelKey, btnEl) {
 
     _checkoutCtx = { type: data.type, plan: data.plan, billingKey: data.billingKey };
 
-    const label = CHECKOUT_LABELS[labelKey] || { title: 'Your order', sub: '' };
+    const label = labelOverride || (window.CHECKOUT_LABELS && window.CHECKOUT_LABELS[labelKey]) || { title: 'Your order', sub: '' };
     const titleEl = document.getElementById('checkout-title');
     const subEl   = document.getElementById('checkout-subtitle');
     const errEl   = document.getElementById('payment-error');

@@ -2857,16 +2857,13 @@
     if (cart.length === 0) return;
     var item = cart[0];
     var btn = document.getElementById('cartCheckoutBtn');
-    // Ensure CHECKOUT_LABELS has our label so _startCheckout can find it
-    if (window.CHECKOUT_LABELS) {
-      window.CHECKOUT_LABELS[item.labelKey] = { title: item.title, sub: item.sub };
-    }
     window.spCloseCart();
     if (typeof window._startCheckout === 'function') {
       window._startCheckout(
         item.type === 'pack' ? { pack: item.id } : { plan: item.id, isAnnual: item.billingKey === 'annual' },
         item.labelKey,
-        btn
+        btn,
+        { title: item.title, sub: item.sub }
       );
     } else {
       alert('Checkout not ready yet. Please refresh the page and try again.');
