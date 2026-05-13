@@ -957,29 +957,19 @@ async function _startCheckout(body, labelKey, btnEl, labelOverride) {
     try { data = await res.json(); } catch { alert('Server error (non-JSON response). Check Vercel logs.'); return; }
     if (!data.clientSecret) { alert(data.error || 'No clientSecret returned.'); return; }
 
-    _checkoutCtx = { type: data.type, plan: data.plan, billingKey: data.billingKey };
-
     const label = labelOverride || (window.CHECKOUT_LABELS && window.CHECKOUT_LABELS[labelKey]) || { title: 'Your order', sub: '' };
-    const titleEl = document.getElementById('checkout-title');
-    const subEl   = document.getElementById('checkout-subtitle');
-    const errEl   = document.getElementById('payment-error');
-    const payBtn  = document.getElementById('pay-btn');
-    const modal   = document.getElementById('checkoutModal');
-    const peEl    = document.getElementById('payment-element');
-    if (!titleEl || !subEl || !errEl || !payBtn || !modal || !peEl) {
-      alert('Checkout UI missing from page. Please refresh.'); return;
-    }
-    titleEl.textContent = label.title;
-    subEl.textContent   = label.sub;
-    errEl.style.display = 'none';
-    payBtn.textContent  = data.type === 'setup' ? 'Subscribe' : 'Pay now';
-    payBtn.disabled     = false;
-    peEl.innerHTML      = '';
-    modal.style.display = 'flex';
 
-    _elements = _getStripe().elements({ clientSecret: data.clientSecret, appearance: _stripeAppearance });
-    const payEl = _elements.create('payment', { layout: 'tabs' });
-    payEl.mount('#payment-element');
+    // Store checkout state and redirect to dedicated checkout page
+    sessionStorage.setItem('sp_checkout', JSON.stringify({
+      clientSecret: data.clientSecret,
+      type: data.type,
+      plan: data.plan,
+      billingKey: data.billingKey,
+      title: label.title,
+      sub: label.sub,
+      uid: user.uid,
+    }));
+    window.location.href = '/checkout';
   } catch (e) {
     alert('Checkout error: ' + (e?.message || String(e)));
   } finally {

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout · Social Penguin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://js.stripe.com/v3/"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #08060f;
+    color: #f1f0f7;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .back-link {
+    position: fixed;
+    top: 24px;
+    left: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(148,144,176,0.7);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: #f1f0f7; }
+  .card {
+    background: linear-gradient(160deg, #1a1230 0%, #0d0b18 100%);
+    border: 1px solid rgba(139,92,246,0.25);
+    border-radius: 24px;
+    padding: 40px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px rgba(139,92,246,0.06);
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    color: #8b5cf6;
+    letter-spacing: 0.5px;
+    margin-bottom: 28px;
+  }
+  .divider {
+    height: 1px;
+    background: rgba(139,92,246,0.15);
+    margin: 20px 0;
+  }
+  .order-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #8b5cf6;
+    margin-bottom: 6px;
+  }
+  .order-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #f1f0f7;
+    margin-bottom: 4px;
+  }
+  .order-sub {
+    font-size: 14px;
+    color: rgba(148,144,176,0.8);
+  }
+  #payment-element { margin-top: 4px; }
+  #payment-error {
+    display: none;
+    color: #f87171;
+    font-size: 13px;
+    margin-top: 14px;
+    padding: 10px 14px;
+    background: rgba(248,113,113,0.08);
+    border: 1px solid rgba(248,113,113,0.2);
+    border-radius: 10px;
+  }
+  #pay-btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 16px;
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  #pay-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+  #pay-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+  .secure-note {
+    text-align: center;
+    font-size: 11px;
+    color: rgba(148,144,176,0.5);
+    margin-top: 14px;
+  }
+  .secure-note strong { color: rgba(148,144,176,0.7); }
+  #loading {
+    text-align: center;
+    color: rgba(148,144,176,0.6);
+    font-size: 15px;
+    padding: 40px 0;
+  }
+  #error-state {
+    display: none;
+    text-align: center;
+    padding: 40px 0;
+  }
+  #error-state p { color: #f87171; margin-bottom: 16px; }
+  #error-state a {
+    color: #8b5cf6;
+    text-decoration: none;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<a class="back-link" href="javascript:history.back()">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15,18 9,12 15,6"/></svg>
+  Back
+</a>
+
+<div class="card">
+  <div class="logo">Social Penguin</div>
+
+  <div id="loading">Loading secure checkout…</div>
+  <div id="error-state">
+    <p id="error-msg">Something went wrong. Please go back and try again.</p>
+    <a href="/pricing">← Back to Pricing</a>
+  </div>
+
+  <div id="checkout-ui" style="display:none;">
+    <div class="order-label">Order Summary</div>
+    <div class="order-title" id="co-title"></div>
+    <div class="order-sub" id="co-sub"></div>
+    <div class="divider"></div>
+    <div id="payment-element"></div>
+    <div id="payment-error"></div>
+    <button id="pay-btn" disabled>Pay now</button>
+    <p class="secure-note">Secured by <strong>Stripe</strong> · Cancel anytime in Settings</p>
+  </div>
+</div>
+
+<script>
+(async function() {
+  var raw = sessionStorage.getItem('sp_checkout');
+  if (!raw) { showError('No checkout session found. Please go back and try again.'); return; }
+
+  var ctx;
+  try { ctx = JSON.parse(raw); } catch(e) { showError('Invalid checkout data.'); return; }
+
+  if (!ctx.clientSecret) { showError('Missing payment details.'); return; }
+
+  // Fill order summary
+  document.getElementById('co-title').textContent = ctx.title || 'Your order';
+  document.getElementById('co-sub').textContent   = ctx.sub   || '';
+  document.getElementById('pay-btn').textContent  = ctx.type === 'setup' ? 'Subscribe now' : 'Pay now';
+
+  // Mount Stripe
+  var stripe = Stripe('pk_live_51TILkeIPYOU07j8mjLpy1miy7sHZGoiY90akLQhgtUONG7BxVK72JfSEMhv2arOi5IG4orFM9se12QGjXoyRRtc500kUZUPoA6');
+  var appearance = {
+    theme: 'night',
+    variables: {
+      colorPrimary: '#8b5cf6',
+      colorBackground: '#13101f',
+      colorText: '#f1f0f7',
+      colorDanger: '#f87171',
+      fontFamily: 'DM Sans, sans-serif',
+      borderRadius: '10px',
+      colorTextSecondary: 'rgba(241,240,247,0.6)',
+      colorTextPlaceholder: 'rgba(148,144,176,0.45)',
+    },
+    rules: {
+      '.Input': { border: '1px solid rgba(139,92,246,0.25)', backgroundColor: 'rgba(139,92,246,0.06)' },
+      '.Input:focus': { border: '1px solid rgba(139,92,246,0.65)', boxShadow: '0 0 0 3px rgba(139,92,246,0.12)' },
+      '.Label': { color: 'rgba(241,240,247,0.65)', fontSize: '13px' },
+    },
+  };
+
+  var elements = stripe.elements({ clientSecret: ctx.clientSecret, appearance: appearance });
+  var payEl = elements.create('payment', { layout: 'tabs' });
+  payEl.mount('#payment-element');
+
+  await new Promise(function(resolve) { payEl.on('ready', resolve); });
+
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('checkout-ui').style.display = 'block';
+  document.getElementById('pay-btn').disabled = false;
+
+  document.getElementById('pay-btn').addEventListener('click', async function() {
+    var btn = this;
+    var errEl = document.getElementById('payment-error');
+    btn.textContent = 'Processing…';
+    btn.disabled = true;
+    errEl.style.display = 'none';
+
+    var returnUrl = 'https://socialpenguin.net/dashboard?checkout=success'
+      + (ctx.type === 'setup' ? '&finalize=1&plan=' + (ctx.plan||'') + '&billing=' + (ctx.billingKey||'') + '&uid=' + (ctx.uid||'') : '');
+
+    var result;
+    if (ctx.type === 'setup') {
+      result = await stripe.confirmSetup({ elements: elements, confirmParams: { return_url: returnUrl }, redirect: 'if_required' });
+    } else {
+      result = await stripe.confirmPayment({ elements: elements, confirmParams: { return_url: returnUrl }, redirect: 'if_required' });
+    }
+
+    if (result.error) {
+      errEl.textContent = result.error.message;
+      errEl.style.display = 'block';
+      btn.textContent = ctx.type === 'setup' ? 'Subscribe now' : 'Pay now';
+      btn.disabled = false;
+      return;
+    }
+
+    // Success — finalize subscription if needed
+    if (ctx.type === 'setup' && result.setupIntent && result.setupIntent.status === 'succeeded') {
+      await fetch('/api/finalize-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ setupIntentId: result.setupIntent.id, plan: ctx.plan, billingKey: ctx.billingKey, uid: ctx.uid }),
+      });
+    }
+
+    sessionStorage.removeItem('sp_checkout');
+    window.location.href = '/dashboard?checkout=success';
+  });
+
+  function showError(msg) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error-msg').textContent = msg;
+    document.getElementById('error-state').style.display = 'block';
+  }
+})();
+
+function showError(msg) {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('error-msg').textContent = msg;
+  document.getElementById('error-state').style.display = 'block';
+}
+</script>
+</body>
+</html>
