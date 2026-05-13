@@ -267,7 +267,7 @@ var _stripe, _cardEl, _ctx, _returnUrl;
 
   _stripe = Stripe('pk_live_51TILkeIPYOU07j8mjLpy1miy7sHZGoiY90akLQhgtUONG7BxVK72JfSEMhv2arOi5IG4orFM9se12QGjXoyRRtc500kUZUPoA6');
 
-  _cardEl = _stripe.elements().create('card', {
+  _cardEl = _stripe.elements({ disableLink: true }).create('card', {
     style: {
       base: {
         color: '#f1f0f7',
