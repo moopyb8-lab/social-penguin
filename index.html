@@ -2760,7 +2760,7 @@
 </div>
 
 <!-- App JavaScript -->
-<script src="app.js?v=5"></script>
+<script src="app.js?v=6"></script>
 
 <!-- Cart: inline fallback so it always works regardless of app.js scope -->
 <script>
@@ -2853,20 +2853,39 @@
     renderCart();
   };
 
-  window.spCartCheckout = function() {
+  window.spCartCheckout = async function() {
     if (cart.length === 0) return;
     var item = cart[0];
     var btn = document.getElementById('cartCheckoutBtn');
-    window.spCloseCart();
-    if (typeof window._startCheckout === 'function') {
-      window._startCheckout(
-        item.type === 'pack' ? { pack: item.id } : { plan: item.id, isAnnual: item.billingKey === 'annual' },
-        item.labelKey,
-        btn,
-        { title: item.title, sub: item.sub }
-      );
-    } else {
-      alert('Checkout not ready yet. Please refresh the page and try again.');
+    var user = window._spUser;
+    if (!user) { window.spCloseCart(); if (typeof showPage === 'function') showPage('login'); return; }
+    var orig = btn ? btn.textContent : '';
+    if (btn) { btn.textContent = 'Loading…'; btn.disabled = true; }
+    try {
+      var body = item.type === 'pack'
+        ? { pack: item.id, uid: user.uid, email: user.email }
+        : { plan: item.id, isAnnual: item.billingKey === 'annual', uid: user.uid, email: user.email };
+      var res = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      var data = await res.json();
+      if (!data.clientSecret) { alert(data.error || 'Could not start checkout.'); return; }
+      sessionStorage.setItem('sp_checkout', JSON.stringify({
+        clientSecret: data.clientSecret,
+        type: data.type,
+        plan: data.plan,
+        billingKey: data.billingKey,
+        title: item.title,
+        sub: item.sub,
+        uid: user.uid,
+      }));
+      window.spCloseCart();
+      window.location.href = '/checkout';
+    } catch (e) {
+      alert('Checkout error: ' + (e.message || e));
+      if (btn) { btn.textContent = orig; btn.disabled = false; }
     }
   };
 
