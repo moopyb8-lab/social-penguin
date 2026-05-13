@@ -17,252 +17,170 @@ body {
   color: #f0eefb;
   min-height: 100vh;
   display: flex;
-}
-
-/* ── Left panel ─────────────────────────────────── */
-.left {
-  position: relative;
-  width: 45%;
-  min-height: 100vh;
-  background: linear-gradient(155deg, #1a0533 0%, #0d0720 40%, #07050e 100%);
-  display: flex;
-  flex-direction: column;
+  align-items: flex-start;
   justify-content: center;
-  padding: 64px 56px;
-  overflow: hidden;
+  padding: 48px 24px;
 }
 
-.left-glow-a {
-  position: absolute;
-  width: 500px; height: 500px;
-  background: #7c3aed;
-  border-radius: 50%;
-  filter: blur(130px);
-  opacity: 0.18;
-  top: -120px; left: -120px;
-  pointer-events: none;
-}
-.left-glow-b {
-  position: absolute;
-  width: 400px; height: 400px;
-  background: #db2777;
-  border-radius: 50%;
-  filter: blur(120px);
-  opacity: 0.12;
-  bottom: -100px; right: -80px;
-  pointer-events: none;
-}
-
-.logo {
-  font-family: 'Syne', sans-serif;
-  font-size: 20px;
-  font-weight: 800;
-  color: #a78bfa;
-  letter-spacing: 0.3px;
-  margin-bottom: 64px;
-  position: relative;
-}
-
-.order-eyebrow {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: rgba(167,139,250,0.6);
-  margin-bottom: 12px;
-  position: relative;
-}
-
-.order-title {
-  font-family: 'Syne', sans-serif;
-  font-size: clamp(32px, 4vw, 52px);
-  font-weight: 800;
-  color: #f0eefb;
-  line-height: 1.1;
-  margin-bottom: 12px;
-  position: relative;
-}
-
-.order-price {
-  font-family: 'Syne', sans-serif;
-  font-size: clamp(20px, 2.5vw, 28px);
-  font-weight: 700;
-  color: #a78bfa;
-  margin-bottom: 48px;
-  position: relative;
-}
-
-.trust-list {
-  list-style: none;
+.layout {
   display: flex;
-  flex-direction: column;
-  gap: 14px;
-  position: relative;
-}
-.trust-list li {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 14px;
-  color: rgba(240,238,251,0.55);
-}
-.trust-list li svg {
-  flex-shrink: 0;
-  color: #7c3aed;
-}
-
-/* ── Right panel ────────────────────────────────── */
-.right {
-  flex: 1;
-  min-height: 100vh;
-  background: #0c0917;
-  border-left: 1px solid rgba(139,92,246,0.12);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 64px 56px;
-  overflow-y: auto;
-}
-
-.right-inner {
+  gap: 32px;
   width: 100%;
-  max-width: 480px;
+  max-width: 1100px;
+  align-items: flex-start;
 }
 
-.section-heading {
+/* ── Left (payment form) ───────────────────────── */
+.form-col {
+  flex: 1;
+  min-width: 0;
+}
+
+h1 {
   font-family: 'Syne', sans-serif;
-  font-size: 24px;
+  font-size: 36px;
   font-weight: 800;
   color: #f0eefb;
   margin-bottom: 6px;
 }
-.section-sub {
-  font-size: 14px;
-  color: rgba(176,170,220,0.5);
-  margin-bottom: 32px;
+
+.total-line {
+  font-size: 15px;
+  color: rgba(176,170,220,0.55);
+  margin-bottom: 36px;
 }
+.total-line strong { color: #f0eefb; font-weight: 700; }
 
-/* Apple/Google Pay */
-#apple-pay-section { display: none; margin-bottom: 18px; }
-#payment-request-button { border-radius: 12px; overflow: hidden; }
-
-.divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
-  color: rgba(176,170,220,0.3);
-  font-size: 11px;
+.section-label {
+  font-size: 16px;
   font-weight: 700;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
+  color: #f0eefb;
+  margin-bottom: 4px;
 }
-.divider::before, .divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: rgba(139,92,246,0.15);
+.section-hint {
+  font-size: 13px;
+  color: rgba(176,170,220,0.45);
+  margin-bottom: 16px;
 }
 
-/* Tabs */
-.tabs {
-  display: flex;
-  gap: 6px;
-  background: rgba(139,92,246,0.06);
-  border: 1px solid rgba(139,92,246,0.14);
-  border-radius: 14px;
-  padding: 5px;
+/* Payment method radio options */
+.method-options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
   margin-bottom: 28px;
 }
-.tab {
-  flex: 1;
-  padding: 11px 6px;
-  background: transparent;
-  border: none;
-  border-radius: 10px;
-  color: rgba(176,170,220,0.5);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 700;
+.method-option {
+  position: relative;
+}
+.method-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0; height: 0;
+}
+.method-option label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: rgba(139,92,246,0.05);
+  border: 1.5px solid rgba(139,92,246,0.18);
+  border-radius: 12px;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(176,170,220,0.7);
   transition: all 0.15s;
   white-space: nowrap;
 }
-.tab:hover { color: #f0eefb; }
-.tab.active {
-  background: rgba(139,92,246,0.2);
+.method-option label:hover {
+  border-color: rgba(139,92,246,0.4);
   color: #f0eefb;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.method-option input:checked + label {
+  border-color: #8b5cf6;
+  background: rgba(139,92,246,0.12);
+  color: #f0eefb;
+  box-shadow: 0 0 0 1px rgba(139,92,246,0.4);
+}
+/* Radio dot */
+.radio-dot {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(139,92,246,0.35);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color 0.15s;
+}
+.method-option input:checked + label .radio-dot {
+  border-color: #8b5cf6;
+  background: #8b5cf6;
+  box-shadow: inset 0 0 0 3px #07050e;
 }
 
-/* Panels */
-.panel { display: none; }
-.panel.active { display: block; }
-
-/* Card fields */
-.field-group { margin-bottom: 12px; }
-.field-label {
-  font-size: 11px;
+/* Card info box */
+#card-box {
+  background: rgba(139,92,246,0.05);
+  border: 1px solid rgba(139,92,246,0.18);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.card-box-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.card-box-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  color: rgba(176,170,220,0.4);
+  color: #f0eefb;
+}
+.card-icons { display: flex; gap: 6px; }
+.card-icon {
+  height: 24px;
+  border-radius: 4px;
+  opacity: 0.75;
+}
+
+.field-group { margin-bottom: 14px; }
+.field-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(176,170,220,0.45);
+  letter-spacing: 0.4px;
   margin-bottom: 8px;
 }
 .field-wrap {
-  background: rgba(139,92,246,0.05);
-  border: 1px solid rgba(139,92,246,0.18);
-  border-radius: 12px;
-  padding: 15px 18px;
+  background: #0c0917;
+  border: 1px solid rgba(139,92,246,0.2);
+  border-radius: 10px;
+  padding: 13px 16px;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .field-wrap:focus-within {
-  border-color: rgba(139,92,246,0.5);
+  border-color: rgba(139,92,246,0.55);
   box-shadow: 0 0 0 3px rgba(139,92,246,0.1);
 }
 .field-row { display: flex; gap: 12px; }
 .field-row .field-group { flex: 1; }
 
-/* Pay button */
-.pay-btn {
-  width: 100%;
-  margin-top: 20px;
-  padding: 17px;
-  background: linear-gradient(135deg, #6d28d9, #8b5cf6 50%, #d946ef);
-  border: none;
-  border-radius: 14px;
-  color: #fff;
-  font-family: 'Syne', sans-serif;
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  box-shadow: 0 8px 32px rgba(109,40,217,0.45);
-  transition: opacity 0.2s, transform 0.15s, box-shadow 0.15s;
-}
-.pay-btn:hover:not(:disabled) {
-  opacity: 0.9;
-  transform: translateY(-1px);
-  box-shadow: 0 12px 40px rgba(109,40,217,0.55);
-}
-.pay-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
-
-/* Redirect buttons */
+/* Redirect panel */
+#redirect-box { display: none; margin-bottom: 16px; }
 .redir-btn {
   width: 100%;
   padding: 17px;
-  border: none;
-  border-radius: 14px;
+  border: none; border-radius: 13px;
   color: #fff;
   font-family: 'DM Sans', sans-serif;
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 15px; font-weight: 700;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  transition: opacity 0.2s, transform 0.15s;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  transition: opacity 0.18s, transform 0.15s;
   box-shadow: 0 6px 20px rgba(0,0,0,0.3);
 }
 .redir-btn:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
@@ -270,11 +188,16 @@ body {
 .btn-paypal  { background: #0070ba; }
 .btn-cashapp { background: #00C244; color: #000 !important; }
 .btn-venmo   { background: #3D95CE; }
+.btn-applepay { background: #000; }
+
+/* Apple Pay via Stripe */
+#apple-pay-section { display: none; margin-bottom: 16px; }
+#payment-request-button { border-radius: 12px; overflow: hidden; }
 
 /* Error */
 #payment-error {
   display: none;
-  margin-top: 14px;
+  margin-bottom: 14px;
   padding: 12px 16px;
   background: rgba(239,68,68,0.08);
   border: 1px solid rgba(239,68,68,0.2);
@@ -284,15 +207,104 @@ body {
   text-align: center;
 }
 
-.fine-print {
-  margin-top: 24px;
+.secure-note {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px;
+  color: rgba(176,170,220,0.35);
+  margin-top: 16px;
+}
+
+/* ── Right (order summary) ─────────────────────── */
+.summary-col {
+  width: 360px;
+  flex-shrink: 0;
+  background: rgba(139,92,246,0.05);
+  border: 1px solid rgba(139,92,246,0.16);
+  border-radius: 20px;
+  padding: 28px;
+}
+
+.summary-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: #f0eefb;
+  margin-bottom: 22px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid rgba(139,92,246,0.12);
+}
+.summary-item-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #f0eefb;
+  margin-bottom: 4px;
+}
+.summary-item-sub {
+  font-size: 13px;
+  color: rgba(176,170,220,0.5);
+}
+.summary-item-price {
+  font-size: 15px;
+  font-weight: 700;
+  color: #f0eefb;
+  white-space: nowrap;
+  margin-left: 12px;
+}
+
+.summary-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 4px;
+  margin-bottom: 24px;
+}
+.summary-total-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 17px;
+  font-weight: 800;
+  color: #f0eefb;
+}
+.summary-total-price {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: #a78bfa;
+}
+
+/* Pay button */
+.pay-btn {
+  width: 100%;
+  padding: 18px;
+  background: linear-gradient(135deg, #6d28d9, #8b5cf6 50%, #d946ef);
+  border: none; border-radius: 14px;
+  color: #fff;
+  font-family: 'Syne', sans-serif;
+  font-size: 16px; font-weight: 800;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  box-shadow: 0 8px 32px rgba(109,40,217,0.45);
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.15s;
+  margin-bottom: 16px;
+}
+.pay-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 12px 40px rgba(109,40,217,0.55); }
+.pay-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.summary-fine {
   font-size: 11px;
-  color: rgba(176,170,220,0.28);
+  color: rgba(176,170,220,0.3);
+  text-align: center;
   line-height: 1.8;
 }
-.fine-print a { color: rgba(176,170,220,0.4); text-decoration: none; }
+.summary-fine a { color: rgba(176,170,220,0.4); text-decoration: none; }
 
-/* Loading */
+/* Loading / Error */
 #loading {
   position: fixed; inset: 0;
   background: #07050e;
@@ -310,142 +322,163 @@ body {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 #error-overlay {
-  display: none; position: fixed; inset: 0;
-  background: #07050e;
+  display: none; position: fixed; inset: 0; background: #07050e;
   flex-direction: column; gap: 14px;
   align-items: center; justify-content: center; z-index: 998;
 }
 #error-overlay p { color: #f87171; font-size: 15px; max-width: 320px; text-align: center; line-height: 1.6; }
 #error-overlay a { color: #8b5cf6; text-decoration: none; font-weight: 600; font-size: 13px; }
 
-/* Mobile: stack */
-@media (max-width: 768px) {
-  body { flex-direction: column; }
-  .left {
-    width: 100%;
-    min-height: auto;
-    padding: 48px 28px 40px;
-  }
-  .logo { margin-bottom: 32px; }
-  .order-title { font-size: 30px; }
-  .order-price { font-size: 20px; margin-bottom: 0; }
-  .trust-list { display: none; }
-  .right { padding: 40px 28px 56px; }
-  .right-inner { max-width: 100%; }
+@media (max-width: 860px) {
+  body { padding: 28px 16px; }
+  .layout { flex-direction: column-reverse; gap: 24px; }
+  .summary-col { width: 100%; }
+  .method-options { grid-template-columns: 1fr 1fr; }
+  h1 { font-size: 28px; }
+}
+@media (max-width: 480px) {
+  .method-options { grid-template-columns: 1fr 1fr; }
 }
 </style>
 </head>
 <body>
 
-<div id="loading">
-  <div class="spinner"></div>
-  <p>Preparing checkout…</p>
-</div>
-
+<div id="loading"><div class="spinner"></div><p>Preparing checkout…</p></div>
 <div id="error-overlay">
   <p id="error-msg">Something went wrong. Please go back and try again.</p>
   <a href="javascript:history.back()">← Go back</a>
 </div>
 
-<!-- Left -->
-<div class="left" id="left-panel" style="display:none;">
-  <div class="left-glow-a"></div>
-  <div class="left-glow-b"></div>
-  <div class="logo">Social Penguin</div>
-  <div class="order-eyebrow">Your order</div>
-  <div class="order-title" id="co-title">—</div>
-  <div class="order-price" id="co-price"></div>
-  <ul class="trust-list">
-    <li>
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-      Instant access after payment
-    </li>
-    <li>
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-      Cancel or manage anytime
-    </li>
-    <li>
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-      Secured by Stripe
-    </li>
-  </ul>
-</div>
+<div class="layout" id="checkout-body" style="display:none;">
 
-<!-- Right -->
-<div class="right" id="right-panel" style="display:none;">
-  <div class="right-inner">
-    <div class="section-heading">How would you like to pay?</div>
-    <div class="section-sub">All transactions are encrypted and secure.</div>
+  <!-- Left: form -->
+  <div class="form-col">
+    <h1>Checkout</h1>
+    <p class="total-line">Total &nbsp;<strong id="co-price-top"></strong></p>
 
-    <!-- Apple/Google Pay -->
-    <div id="apple-pay-section">
-      <div id="payment-request-button"></div>
-      <div class="divider">or pay another way</div>
+    <div class="section-label">Payment method</div>
+    <div class="section-hint">Choose how you'd like to pay</div>
+
+    <div class="method-options">
+      <div class="method-option">
+        <input type="radio" name="method" id="m-card" value="card" checked>
+        <label for="m-card" onclick="selectMethod('card')">
+          <span class="radio-dot"></span>
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+          Card
+        </label>
+      </div>
+      <div class="method-option" id="applepay-option" style="display:none;">
+        <input type="radio" name="method" id="m-apple" value="applepay">
+        <label for="m-apple" onclick="selectMethod('applepay')">
+          <span class="radio-dot"></span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.4c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.39-1.32 2.76-2.54 3.99zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+          Apple Pay
+        </label>
+      </div>
+      <div class="method-option">
+        <input type="radio" name="method" id="m-cashapp" value="cashapp">
+        <label for="m-cashapp" onclick="selectMethod('cashapp')">
+          <span class="radio-dot"></span>
+          <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M20.1 11.5l-1.2 1.2c-.8-.7-1.8-1.1-2.9-1.1-1.1 0-2 .4-2.6 1.1-.6.7-.9 1.6-.9 2.6 0 1 .3 1.8.9 2.5.6.7 1.5 1 2.6 1 1 0 2-.4 2.8-1.1l1.3 1.3c-1.1 1-2.5 1.6-4.1 1.6-1.7 0-3.1-.6-4.2-1.7-1.1-1.1-1.6-2.5-1.6-4.1 0-1.6.6-3 1.7-4.1 1.1-1.1 2.5-1.7 4.1-1.7 1.5 0 2.9.5 4.1 1.5zm.9-1.5l-1.4-1.4 1-1 1.4 1.4-1 1zm-7.6 10.6l1.4 1.4-1 1-1.4-1.4 1-1z"/></svg>
+          Cash App
+        </label>
+      </div>
+      <div class="method-option">
+        <input type="radio" name="method" id="m-venmo" value="venmo">
+        <label for="m-venmo" onclick="selectMethod('venmo')">
+          <span class="radio-dot"></span>
+          <svg width="14" height="14" viewBox="0 0 32 32" fill="currentColor"><path d="M27 5.5c.9 1.4 1.3 2.9 1.3 4.7 0 5.9-5.1 13.5-9.2 18.8H10.2L5.7 6.2l7.7-.7 2.1 16c1.9-3.1 4.2-7.9 4.2-11.1 0-1.8-.3-3-.9-4l8.2-1z"/></svg>
+          Venmo
+        </label>
+      </div>
+      <div class="method-option">
+        <input type="radio" name="method" id="m-paypal" value="paypal">
+        <label for="m-paypal" onclick="selectMethod('paypal')">
+          <span class="radio-dot"></span>
+          <svg width="15" height="15" viewBox="0 0 32 32" fill="currentColor"><path d="M25.6 7.4C24.4 5.9 22.2 5 19.6 5H9.6c-.7 0-1.3.5-1.5 1.2L5 26.5c-.1.5.3 1 .8 1h5.8l1.5-9.5c.2-.7.8-1.2 1.5-1.2H17c6.3 0 11.2-2.6 12.7-10 .1-.5.2-1.1.2-1.6-.4-1.7-1.1-3-4.3-3.1z" opacity=".6"/><path d="M25.6 7.4c-.1.5-.2 1.1-.2 1.6-1.5 7.4-6.4 10-12.7 10h-2.5c-.7 0-1.3.5-1.5 1.2l-2 12.8c-.1.5.3.9.8.9h5.2c.6 0 1.2-.5 1.3-1.1l1.3-8.4c.2-.6.7-1.1 1.3-1.1h2.8c5.6 0 10-2.3 11.3-8.9.5-2.7.1-5-1.1-6.1z"/></svg>
+          PayPal
+        </label>
+      </div>
     </div>
 
-    <!-- Tabs -->
-    <div class="tabs">
-      <button class="tab" onclick="selectTab('card')">Card</button>
-      <button class="tab" onclick="selectTab('paypal')">PayPal</button>
-      <button class="tab" onclick="selectTab('cashapp')">Cash App</button>
-      <button class="tab" onclick="selectTab('venmo')">Venmo</button>
-    </div>
-
-    <!-- Card -->
-    <div class="panel" id="panel-card">
+    <!-- Card fields -->
+    <div id="card-box">
+      <div class="card-box-header">
+        <div class="card-box-title">
+          <svg width="16" height="16" fill="none" stroke="rgba(176,170,220,0.5)" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Card information
+        </div>
+        <div class="card-icons">
+          <svg class="card-icon" height="24" viewBox="0 0 48 32" fill="none"><rect width="48" height="32" rx="4" fill="#1A1F71"/><text x="8" y="22" font-family="Arial" font-size="13" font-weight="bold" fill="white">VISA</text></svg>
+          <svg class="card-icon" height="24" viewBox="0 0 48 32" fill="none"><rect width="48" height="32" rx="4" fill="#252525"/><circle cx="18" cy="16" r="10" fill="#EB001B" opacity=".9"/><circle cx="30" cy="16" r="10" fill="#F79E1B" opacity=".9"/><path d="M24 8.4a10 10 0 0 1 0 15.2A10 10 0 0 1 24 8.4z" fill="#FF5F00"/></svg>
+        </div>
+      </div>
       <div class="field-group">
         <div class="field-label">Card number</div>
         <div class="field-wrap"><div id="card-number"></div></div>
       </div>
       <div class="field-row">
         <div class="field-group">
-          <div class="field-label">Expiry</div>
+          <div class="field-label">Expiration date</div>
           <div class="field-wrap"><div id="card-expiry"></div></div>
         </div>
         <div class="field-group">
-          <div class="field-label">CVC</div>
+          <div class="field-label">Security code</div>
           <div class="field-wrap"><div id="card-cvc"></div></div>
         </div>
       </div>
-      <button class="pay-btn" id="pay-card-btn" disabled>Pay now</button>
     </div>
 
-    <!-- PayPal -->
-    <div class="panel" id="panel-paypal">
-      <button class="redir-btn btn-paypal" id="paypal-btn">
-        <svg width="18" height="18" viewBox="0 0 32 32" fill="white"><path d="M25.6 7.4C24.4 5.9 22.2 5 19.6 5H9.6c-.7 0-1.3.5-1.5 1.2L5 26.5c-.1.5.3 1 .8 1h5.8l1.5-9.5c.2-.7.8-1.2 1.5-1.2H17c6.3 0 11.2-2.6 12.7-10 .1-.5.2-1.1.2-1.6-.4-1.7-1.1-3-4.3-3.1z" opacity=".7"/><path d="M25.6 7.4c-.1.5-.2 1.1-.2 1.6-1.5 7.4-6.4 10-12.7 10h-2.5c-.7 0-1.3.5-1.5 1.2l-2 12.8c-.1.5.3.9.8.9h5.2c.6 0 1.2-.5 1.3-1.1l1.3-8.4c.2-.6.7-1.1 1.3-1.1h2.8c5.6 0 10-2.3 11.3-8.9.5-2.7.1-5-1.1-6.1z"/></svg>
-        Continue with PayPal
-      </button>
+    <!-- Apple Pay (Stripe Payment Request) -->
+    <div id="apple-pay-section">
+      <div id="payment-request-button"></div>
     </div>
 
-    <!-- Cash App -->
-    <div class="panel" id="panel-cashapp">
-      <button class="redir-btn btn-cashapp" id="cashapp-btn">
-        <svg width="18" height="18" viewBox="0 0 32 32" fill="black"><path d="M20.1 11.5l-1.2 1.2c-.8-.7-1.8-1.1-2.9-1.1-1.1 0-2 .4-2.6 1.1-.6.7-.9 1.6-.9 2.6 0 1 .3 1.8.9 2.5.6.7 1.5 1 2.6 1 1 0 2-.4 2.8-1.1l1.3 1.3c-1.1 1-2.5 1.6-4.1 1.6-1.7 0-3.1-.6-4.2-1.7-1.1-1.1-1.6-2.5-1.6-4.1 0-1.6.6-3 1.7-4.1 1.1-1.1 2.5-1.7 4.1-1.7 1.5 0 2.9.5 4.1 1.5zm.9-1.5l-1.4-1.4 1-1 1.4 1.4-1 1zm-7.6 10.6l1.4 1.4-1 1-1.4-1.4 1-1z"/></svg>
-        Continue with Cash App
-      </button>
-    </div>
-
-    <!-- Venmo -->
-    <div class="panel" id="panel-venmo">
-      <button class="redir-btn btn-venmo" id="venmo-btn">
-        <svg width="16" height="16" viewBox="0 0 32 32" fill="white"><path d="M27 5.5c.9 1.4 1.3 2.9 1.3 4.7 0 5.9-5.1 13.5-9.2 18.8H10.2L5.7 6.2l7.7-.7 2.1 16c1.9-3.1 4.2-7.9 4.2-11.1 0-1.8-.3-3-.9-4l8.2-1z"/></svg>
-        Continue with Venmo
-      </button>
+    <!-- Redirect panel (Cash App / Venmo / PayPal) -->
+    <div id="redirect-box">
+      <button class="redir-btn" id="redir-btn-el">Continue</button>
     </div>
 
     <div id="payment-error"></div>
 
-    <p class="fine-print">
-      Secured by <strong style="color:rgba(176,170,220,0.42)">Stripe</strong>
+    <div class="secure-note">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Secure and encrypted
+    </div>
+  </div>
+
+  <!-- Right: order summary -->
+  <div class="summary-col">
+    <div class="summary-title">Order summary</div>
+
+    <div class="summary-item">
+      <div>
+        <div class="summary-item-name" id="co-title">—</div>
+        <div class="summary-item-sub" id="co-sub"></div>
+      </div>
+      <div class="summary-item-price" id="co-price-item"></div>
+    </div>
+
+    <div class="summary-total-row">
+      <div class="summary-total-label">Total</div>
+      <div class="summary-total-price" id="co-price-total"></div>
+    </div>
+
+    <button class="pay-btn" id="pay-card-btn" disabled>Pay now</button>
+
+    <p class="summary-fine">
+      Secured by <strong style="color:rgba(176,170,220,0.45)">Stripe</strong>
       &nbsp;·&nbsp;<a href="/terms">Terms</a>
-      &nbsp;·&nbsp;Cancel anytime in Settings
+      &nbsp;·&nbsp;Cancel anytime
     </p>
   </div>
+
 </div>
 
 <script>
 var _stripe, _cardNumberEl, _cardExpiryEl, _cardCvcEl, _ctx, _returnUrl;
+var _currentMethod = 'card';
 
 (async function() {
   function showError(msg) {
@@ -469,10 +502,16 @@ var _stripe, _cardNumberEl, _cardExpiryEl, _cardCvcEl, _ctx, _returnUrl;
 
   var fullTitle = _ctx.title || 'Your order';
   var fullSub   = _ctx.sub   || '';
-  document.getElementById('co-title').textContent = fullTitle;
   var priceMatch = fullSub.match(/\$[\d.]+(?:\/\w+)?/);
-  document.getElementById('co-price').textContent = priceMatch ? priceMatch[0] : fullSub;
-  document.getElementById('pay-card-btn').textContent = _ctx.type === 'setup' ? 'Subscribe now' : 'Pay now';
+  var priceStr = priceMatch ? priceMatch[0] : fullSub;
+  var remainder = priceMatch ? fullSub.replace(priceMatch[0], '').replace(/^[\s·\-]+|[\s·\-]+$/g, '') : '';
+
+  document.getElementById('co-title').textContent = fullTitle;
+  document.getElementById('co-sub').textContent = remainder;
+  document.getElementById('co-price-item').textContent = priceStr;
+  document.getElementById('co-price-total').textContent = priceStr;
+  document.getElementById('co-price-top').textContent = priceStr;
+  document.getElementById('pay-card-btn').textContent = (_ctx.type === 'setup' ? 'Subscribe · ' : 'Pay · ') + priceStr;
 
   _returnUrl = 'https://socialpenguin.net/dashboard?checkout=success'
     + (_ctx.type === 'setup'
@@ -500,9 +539,7 @@ var _stripe, _cardNumberEl, _cardExpiryEl, _cardCvcEl, _ctx, _returnUrl;
 
   _cardNumberEl.on('ready', function() {
     document.getElementById('loading').style.display = 'none';
-    document.getElementById('left-panel').style.display = 'flex';
-    document.getElementById('right-panel').style.display = 'flex';
-    selectTab('card');
+    document.getElementById('checkout-body').style.display = 'flex';
     document.getElementById('pay-card-btn').disabled = false;
   });
 
@@ -521,7 +558,7 @@ var _stripe, _cardNumberEl, _cardExpiryEl, _cardCvcEl, _ctx, _returnUrl;
     pr.canMakePayment().then(function(result) {
       if (result) {
         prBtn.mount('#payment-request-button');
-        document.getElementById('apple-pay-section').style.display = 'block';
+        document.getElementById('applepay-option').style.display = 'block';
       }
     });
     pr.on('paymentmethod', async function(ev) {
@@ -541,11 +578,19 @@ var _stripe, _cardNumberEl, _cardExpiryEl, _cardCvcEl, _ctx, _returnUrl;
     });
   }
 
-  // Card pay
+  // Pay button (card + Apple Pay trigger)
   document.getElementById('pay-card-btn').addEventListener('click', async function() {
+    document.getElementById('payment-error').style.display = 'none';
+    if (_currentMethod === 'applepay') {
+      // Apple Pay is handled via the Stripe payment request sheet — trigger it
+      return;
+    }
+    if (_currentMethod !== 'card') {
+      await doRedirect(_currentMethod);
+      return;
+    }
     var btn = this; var orig = btn.textContent;
     btn.textContent = 'Processing…'; btn.disabled = true;
-    document.getElementById('payment-error').style.display = 'none';
     var result = _ctx.type === 'setup'
       ? await _stripe.confirmCardSetup(_ctx.clientSecret, { payment_method: { card: _cardNumberEl } })
       : await _stripe.confirmCardPayment(_ctx.clientSecret, { payment_method: { card: _cardNumberEl } });
@@ -560,35 +605,63 @@ var _stripe, _cardNumberEl, _cardExpiryEl, _cardCvcEl, _ctx, _returnUrl;
     window.location.href = '/dashboard?checkout=success';
   });
 
-  // Redirect methods
-  async function doRedirect(methodType, btnEl) {
-    var orig = btnEl.innerHTML;
-    btnEl.textContent = 'Redirecting…'; btnEl.disabled = true;
+  // Redirect button
+  document.getElementById('redir-btn-el').addEventListener('click', async function() {
+    await doRedirect(_currentMethod);
+  });
+
+  async function doRedirect(methodType) {
+    var btn = document.getElementById('redir-btn-el');
+    var orig = btn.innerHTML;
+    btn.textContent = 'Redirecting…'; btn.disabled = true;
     document.getElementById('payment-error').style.display = 'none';
     try {
       var result = _ctx.type === 'setup'
         ? await _stripe.confirmSetup({ clientSecret: _ctx.clientSecret, confirmParams: { return_url: _returnUrl, payment_method_data: { type: methodType } }, redirect: 'always' })
         : await _stripe.confirmPayment({ clientSecret: _ctx.clientSecret, confirmParams: { return_url: _returnUrl, payment_method_data: { type: methodType } }, redirect: 'always' });
-      if (result && result.error) { showErrInline(result.error.message); btnEl.innerHTML = orig; btnEl.disabled = false; }
+      if (result && result.error) { showErrInline(result.error.message); btn.innerHTML = orig; btn.disabled = false; }
     } catch(e) {
-      showErrInline(e.message || 'Payment failed.'); btnEl.innerHTML = orig; btnEl.disabled = false;
+      showErrInline(e.message || 'Payment failed.'); btn.innerHTML = orig; btn.disabled = false;
     }
   }
-
-  document.getElementById('paypal-btn').addEventListener('click',  function() { doRedirect('paypal',  this); });
-  document.getElementById('cashapp-btn').addEventListener('click', function() { doRedirect('cashapp', this); });
-  document.getElementById('venmo-btn').addEventListener('click',   function() { doRedirect('venmo',   this); });
 })();
 
-function selectTab(tab) {
-  document.querySelectorAll('.tab').forEach(function(b) {
-    var t = b.textContent.trim().toLowerCase().replace(/ /g, '');
-    b.classList.toggle('active', t === tab || (tab === 'cashapp' && t === 'cashapp'));
-  });
-  ['card','paypal','cashapp','venmo'].forEach(function(t) {
-    document.getElementById('panel-' + t).classList.toggle('active', t === tab);
-  });
+function selectMethod(method) {
+  _currentMethod = method;
   document.getElementById('payment-error').style.display = 'none';
+
+  var isCard    = method === 'card';
+  var isApple   = method === 'applepay';
+  var isRedirect = !isCard && !isApple;
+
+  document.getElementById('card-box').style.display       = isCard   ? 'block' : 'none';
+  document.getElementById('apple-pay-section').style.display = isApple  ? 'block' : 'none';
+  document.getElementById('redirect-box').style.display   = isRedirect ? 'block' : 'none';
+
+  var payBtn = document.getElementById('pay-card-btn');
+  var priceStr = document.getElementById('co-price-total').textContent;
+  var label = _ctx && _ctx.type === 'setup' ? 'Subscribe · ' : 'Pay · ';
+
+  if (isCard) {
+    payBtn.style.display = 'block';
+    payBtn.textContent = label + priceStr;
+    payBtn.disabled = false;
+  } else if (isApple) {
+    payBtn.style.display = 'none';
+  } else {
+    payBtn.style.display = 'block';
+    var names = { cashapp: 'Cash App', venmo: 'Venmo', paypal: 'PayPal' };
+    payBtn.textContent = 'Continue with ' + (names[method] || method);
+    payBtn.disabled = false;
+
+    // Style and label the inline redirect button too
+    var rb = document.getElementById('redir-btn-el');
+    rb.className = 'redir-btn';
+    if (method === 'cashapp') { rb.classList.add('btn-cashapp'); rb.style.color = '#000'; rb.textContent = 'Continue with Cash App'; }
+    else if (method === 'venmo') { rb.classList.add('btn-venmo'); rb.style.color = '#fff'; rb.textContent = 'Continue with Venmo'; }
+    else if (method === 'paypal') { rb.classList.add('btn-paypal'); rb.style.color = '#fff'; rb.textContent = 'Continue with PayPal'; }
+    rb.disabled = false;
+  }
 }
 </script>
 </body>
